@@ -96,10 +96,9 @@ class CypherPusher:
         print 'push over.'
 
     def saveProcessedFile(self, filepath, data):
-        f_out = open(filepath, 'a')
-        f_out.write(data)
-        f_out.write('\n')
-        f_out.close()
+        with open(filepath, 'a') as f_out:
+            f_out.write(data)
+            f_out.write('\n')
 
     def loadProcessedFile(self, filepath):
         if not FilePath.fileExist(filepath):
@@ -126,13 +125,8 @@ class CypherPusher:
         :param filepath: 
         :return: 
         """
-        cypherlist = []
-
         f_cypher = open(filepath, 'r')
-        for line in f_cypher:
-            cypherlist.append(line)
-
-        return cypherlist
+        return list(f_cypher)
 
 if __name__ == "__main__":
     pusher = CypherPusher()

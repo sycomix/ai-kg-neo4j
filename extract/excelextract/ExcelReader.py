@@ -117,11 +117,8 @@ class ExcelReader:
 
 
     def isChinese(self, ch):
-        res = False
         s_unicode = UnicodeConvertor.stringToUnicode(ch)
-        if s_unicode >= u'\\u4e00' and s_unicode <= u'\\u9fa5':
-            res = True
-        return  res
+        return s_unicode >= u'\\u4e00' and s_unicode <= u'\\u9fa5'
     def getMd5(self,text):
 
         md5 = hashlib.md5(text.encode('utf-8')).hexdigest()

@@ -49,33 +49,29 @@ class FilePreprocess:
         self.__initAuxiliarywords__()
 
     def __initStopwords__(self):
-        fstop = open(self.__curpath+'/../data/dictionary/stopwords-pre-v20180817.txt', 'r')
-        for eachWord in fstop:
-            eachWord = eachWord.strip()
-            eachWord = eachWord.decode('utf-8', 'ignore')
-            length = len(eachWord)
-            tup = (eachWord, length)
-            self.stopwordlist.append(tup)
-            self.stopwords[eachWord] = eachWord
-        fstop.close()
-
+        with open(f'{self.__curpath}/../data/dictionary/stopwords-pre-v20180817.txt', 'r') as fstop:
+            for eachWord in fstop:
+                eachWord = eachWord.strip()
+                eachWord = eachWord.decode('utf-8', 'ignore')
+                length = len(eachWord)
+                tup = (eachWord, length)
+                self.stopwordlist.append(tup)
+                self.stopwords[eachWord] = eachWord
         self.stopwordlist = sorted(self.stopwordlist, cmp=lambda x, y: cmp(y[1], x[1]))
 
     def __initIncludewords__(self):
-        fwords = open(self.__curpath+'/../data/dictionary/includewords-pre-v20180824.txt', 'r')
-        for eachWord in fwords:
-            eachWord = eachWord.strip()
-            eachWord = eachWord.decode('utf-8', 'ignore')
-            self.inludewords[eachWord] = eachWord
-        fwords.close()
+        with open(f'{self.__curpath}/../data/dictionary/includewords-pre-v20180824.txt', 'r') as fwords:
+            for eachWord in fwords:
+                eachWord = eachWord.strip()
+                eachWord = eachWord.decode('utf-8', 'ignore')
+                self.inludewords[eachWord] = eachWord
 
     def __initAuxiliarywords__(self):
-        fwords = open(self.__curpath+'/../data/dictionary/auxiliary-pre-20180829.txt', 'r')
-        for eachWord in fwords:
-            eachWord = eachWord.strip()
-            eachWord = eachWord.decode('utf-8', 'ignore')
-            self.auxiliarywords[eachWord] = eachWord
-        fwords.close()
+        with open(f'{self.__curpath}/../data/dictionary/auxiliary-pre-20180829.txt', 'r') as fwords:
+            for eachWord in fwords:
+                eachWord = eachWord.strip()
+                eachWord = eachWord.decode('utf-8', 'ignore')
+                self.auxiliarywords[eachWord] = eachWord
 
     def getSentence(self, filepath):
         linecount = 0
@@ -124,9 +120,9 @@ class FilePreprocess:
         incwords = []
         if len(sentence.strip()) == 0:
             return incwords
-        for word in self.inludewords:
-            if str(sentence).__contains__(word):
-                incwords.append(word)
+        incwords.extend(
+            word for word in self.inludewords if str(sentence).__contains__(word)
+        )
         return incwords
 
     def removeStopwords(self, sentence, incwords):
@@ -200,11 +196,8 @@ class FilePreprocess:
                     tempword = []
 
     def isChinese(self, ch):
-        res = False
         s_unicode = UnicodeConvertor.stringToUnicode(ch)
-        if s_unicode >= u'\\u4e00' and s_unicode <= u'\\u9fa5':
-            res = True
-        return  res
+        return s_unicode >= u'\\u4e00' and s_unicode <= u'\\u9fa5'
 
 if __name__ == "__main__":
     #sr = FilePreprocess()

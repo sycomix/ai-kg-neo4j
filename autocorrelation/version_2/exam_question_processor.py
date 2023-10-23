@@ -94,9 +94,10 @@ class ExamQuestionProcessor:
         # "MERGE ({0})-[:SOLVE]->({1})".format(knode['key'], qnode['key'])
         if len(exam_question_list) == 0:
             return
-        cypherlist = []
-        cypherlist.append("CREATE CONSTRAINT ON (c:Knowledge) ASSERT c.code IS UNIQUE;")
-        cypherlist.append("CREATE CONSTRAINT ON (c:Question) ASSERT c.code IS UNIQUE;")
+        cypherlist = [
+            "CREATE CONSTRAINT ON (c:Knowledge) ASSERT c.code IS UNIQUE;",
+            "CREATE CONSTRAINT ON (c:Question) ASSERT c.code IS UNIQUE;",
+        ]
         self.cypherlist.append("create index on:Question(databaseid);")
         for item in exam_question_list:
             exam_content = item.content
@@ -123,7 +124,7 @@ class ExamQuestionProcessor:
                     item.code, item.type, item.category, item.diff,
                     course.NewCourseName, course.CourseCode, course.ItemBankID, course.SchoolCode)
                 rns = "MERGE (k)-[:CHECK]->(q);"
-                com = kns + ' ' + qns + ' ' + rns
+                com = f'{kns} {qns} {rns}'
                 cypherlist.append(com)
         return  cypherlist
 
@@ -245,25 +246,21 @@ class ExamQuestionProcessor:
         question_answer = question_row[7]
         answer_content = ''
         if str(question_answer).__contains__('A'):
-            answer_content = answer_content + ', ' + str(question_row[2])
+            answer_content = f'{answer_content}, {str(question_row[2])}'
         if str(question_answer).__contains__('B'):
-            answer_content = answer_content + ', ' + str(question_row[3])
+            answer_content = f'{answer_content}, {str(question_row[3])}'
         if str(question_answer).__contains__('C'):
-            answer_content = answer_content + ', ' + str(question_row[4])
+            answer_content = f'{answer_content}, {str(question_row[4])}'
         if str(question_answer).__contains__('D'):
-            answer_content = answer_content + ', ' + str(question_row[5])
+            answer_content = f'{answer_content}, {str(question_row[5])}'
         if str(question_answer).__contains__('E'):
-            answer_content = answer_content + ', ' + str(question_row[6])
+            answer_content = f'{answer_content}, {str(question_row[6])}'
 
-        answer_content = str(answer_content)
+        answer_content = answer_content
         if len(answer_content):
             answer_content = answer_content[1:]
-        knowledge = ''
-        if len(question_row) > 12:
-            knowledge = str(question_row[12])
-        content =  '{}:: {} 答案：{}'.format(knowledge, question_content, answer_content)
-
-        return content
+        knowledge = str(question_row[12]) if len(question_row) > 12 else ''
+        return f'{knowledge}:: {question_content} 答案：{answer_content}'
 
 
 

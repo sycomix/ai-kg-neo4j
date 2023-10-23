@@ -22,15 +22,10 @@ class Neo4jHandler:
             A driver object holds the detail of a Neo4j database including server URIs, credentials and other configuration, see
             " httprequest://database.com/docs/api/python-driver/current/driver.html ".
         """
-        if driver is None:
-
-            self.driver = Neo4jDriver.Neo4jDriver().driver
-        else:
-            self.driver = driver
+        self.driver = Neo4jDriver.Neo4jDriver().driver if driver is None else driver
 
     def __repr__(self):
-        printer = 'Neo4j driver "{0}" carry me fly...'.format(self.driver)
-        return printer
+        return 'Neo4j driver "{0}" carry me fly...'.format(self.driver)
 
     def listreader(self, cypher, keys):
         """
@@ -49,9 +44,7 @@ class Neo4jHandler:
                 data = []
                 result = tx.run(cypher)
                 for record in result:
-                    rows = []
-                    for key in keys:
-                        rows.append(record[key])
+                    rows = [record[key] for key in keys]
                     data.append(rows)
                 return data
 
@@ -71,9 +64,7 @@ class Neo4jHandler:
                 data = []
                 result = tx.run(cypher).records()
                 for record in result:
-                    item = {}
-                    item['QuestionID'] = record[0]
-                    item['ItemBankID'] = record[1]
+                    item = {'QuestionID': record[0], 'ItemBankID': record[1]}
                     data.append(item)
 
                 return data
@@ -93,18 +84,17 @@ class Neo4jHandler:
 
         if not keys:
             return self.dictreader(cypher)
-        else:
-            with self.driver.session() as session:
-                with session.begin_transaction() as tx:
-                    data = []
-                    result = tx.run(cypher)
-                    for record in result:
-                        item = {}
-                        for key in keys:
-                            item.update({'labels': list(record[key]._labels)})
-                            item.update({'properties': record[key]._properties})
-                        data.append(item)
-                    return data
+        with self.driver.session() as session:
+            with session.begin_transaction() as tx:
+                data = []
+                result = tx.run(cypher)
+                for record in result:
+                    item = {}
+                    for key in keys:
+                        item['labels'] = list(record[key]._labels)
+                        item['properties'] = record[key]._properties
+                    data.append(item)
+                return data
 
     def cypherexecuterlist(self, cypherarray):
         """

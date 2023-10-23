@@ -46,12 +46,10 @@ class ExcelReader:
 
 
     def __initColumn(self):
-        self.columns = {}
         cols = [u'院校',u'高校名称',u'课程名称',u'课程编号',u'题库编号',u'试题编号',
                 u'题型名称',u'试题类别',u'难度',u'标注知识点']
 
-        for col in cols:
-            self.columns[col] = (-1, -1)
+        self.columns = {col: (-1, -1) for col in cols}
 
 
     def resetColumn(self):
@@ -324,8 +322,7 @@ class ExcelReader:
         # find all characters in the string that are numeric.
         m = re.search(ur'(-{0,1}\d+)', data)
         numeric = m.group() # retrieve numeric string
-        res = int(numeric) # returns 100
-        return res
+        return int(numeric)
 
     def preprocessKnowledge(self, data):
         res_wordlist = []
@@ -401,11 +398,8 @@ class ExcelReader:
         return wordlist
 
     def isChinese(self, ch):
-        res = False
         s_unicode = UnicodeConvertor.stringToUnicode(ch)
-        if s_unicode >= u'\\u4e00' and s_unicode <= u'\\u9fa5':
-            res = True
-        return  res
+        return s_unicode >= u'\\u4e00' and s_unicode <= u'\\u9fa5'
     def getMd5(self,text):
 
         md5 = hashlib.md5(text.encode('utf-8')).hexdigest()

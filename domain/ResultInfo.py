@@ -14,9 +14,7 @@ class ResultInfo(object):
         self.text = text
 
     def toDescription(self):
-        desc = u'{}(可信度:{}%)'.format(self.text, round(self.score * 100, 2))
-        return desc
+        return f'{self.text}(可信度:{round(self.score * 100, 2)}%)'
 
     def toFullDescription(self):
-        desc = u'{}(编码：{}，可信度:{}%)'.format(self.text, self.code,round(self.score * 100, 2))
-        return desc
+        return f'{self.text}(编码：{self.code}，可信度:{round(self.score * 100, 2)}%)'

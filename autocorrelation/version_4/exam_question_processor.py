@@ -211,25 +211,21 @@ class ExamQuestionProcessor:
         question_answer = question_row[7]
         answer_content = ''
         if str(question_answer).__contains__('A'):
-            answer_content = answer_content + ', ' + str(question_row[2])
+            answer_content = f'{answer_content}, {str(question_row[2])}'
         if str(question_answer).__contains__('B'):
-            answer_content = answer_content + ', ' + str(question_row[3])
+            answer_content = f'{answer_content}, {str(question_row[3])}'
         if str(question_answer).__contains__('C'):
-            answer_content = answer_content + ', ' + str(question_row[4])
+            answer_content = f'{answer_content}, {str(question_row[4])}'
         if str(question_answer).__contains__('D'):
-            answer_content = answer_content + ', ' + str(question_row[5])
+            answer_content = f'{answer_content}, {str(question_row[5])}'
         if str(question_answer).__contains__('E'):
-            answer_content = answer_content + ', ' + str(question_row[6])
+            answer_content = f'{answer_content}, {str(question_row[6])}'
 
-        answer_content = str(answer_content)
+        answer_content = answer_content
         if len(answer_content):
             answer_content = answer_content[1:]
-        knowledge = ''
-        if len(question_row) > 12:
-            knowledge = str(question_row[12])
-        content =  '{}:: {} 答案：{}'.format(knowledge, question_content, answer_content)
-
-        return content
+        knowledge = str(question_row[12]) if len(question_row) > 12 else ''
+        return f'{knowledge}:: {question_content} 答案：{answer_content}'
 
 
 

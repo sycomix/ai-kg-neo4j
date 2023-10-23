@@ -22,7 +22,6 @@ class TextReader:
         """
         self.filepath = None
         self.content_rows = None
-        pass
 
     def readText(self):
         self.content_rows = []
@@ -32,7 +31,5 @@ class TextReader:
             return
 
         f_input = open(self.filepath)
-        for row in f_input:
-            self.content_rows.append(row)
-
+        self.content_rows.extend(iter(f_input))
         return self.content_rows

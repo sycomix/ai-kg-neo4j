@@ -42,8 +42,7 @@ class WikiReader:
 
         # query_v1
         r4 = session.post(self.api_url, data=jsondata)
-        stat = self.jsonparer.parseJson(r4.text)
-        if stat:
+        if stat := self.jsonparer.parseJson(r4.text):
             self.resultjson = self.getSubJsonObject(self.jsonparer.jsondata, 'results')
             self.getNodeAndRelation(self.resultjson)
             self.cypherstatement = self.cypherGenerate()
@@ -79,17 +78,12 @@ class WikiReader:
                 #    qnode['text'] = qd['fulltext']
                 #    self.qnode.append(qnode)
                 #    qindex = qindex + 1
-                qnode = {}
-                qnode['key'] = 'q' + str(qindex)
-                qnode['code'] = code
+                qnode = {'key': f'q{qindex}', 'code': code}
                 self.qnode.append(qnode)
 
                 Knowledge = secv['Check']
                 for kd in Knowledge:
-                    knode = {}
-                    knode['key'] = 'k' + str(kindex)
-                    knode['code'] = kd['fulltext']
-
+                    knode = {'key': f'k{str(kindex)}', 'code': kd['fulltext']}
                     self.knode.append(knode)
                     kindex = kindex + 1
 
@@ -117,10 +111,7 @@ class WikiReader:
             ns = "MERGE ({0})-[:SOLVE]->({1})".format(knode['key'], qnode['key'])
             cypher.append(ns)
 
-        #res = 'MERGE ' +  ', '.join(cypher)
-        res =  '\r\n '.join(cypher)
-
-        return res
+        return '\r\n '.join(cypher)
 
 if __name__ == "__main__":
     wikireader = WikiReader()

@@ -58,11 +58,7 @@ class KnowledgeCypher(BaseCypher):
         :param jsondata: 
         :return: False, True
         """
-        flag = True
-
         if not jsondata.__contains__('QuestionId'):
-            flag = False
             self.resp.setResult(self.result, -1, 'questionId not cantains')
-            return flag
-
-        return flag
+            return False
+        return True

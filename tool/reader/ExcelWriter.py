@@ -24,9 +24,7 @@ def writeExcelFile(filepath, sheet_datas):
     for s_sheet in sheet_datas.keys():
         # sheet的名称
         sheet = wb.add_sheet(s_sheet)
-        # 单元格的格式
-        style = 'pattern: pattern solid, fore_colour yellow; '  # 背景颜色为黄色
-        style += 'font: bold on; '  # 粗体字
+        style = 'pattern: pattern solid, fore_colour yellow; ' + 'font: bold on; '
         style += 'align: horz centre, vert center; '  # 居中
         header_style = xlwt.easyxf(style)
 
@@ -52,9 +50,7 @@ if __name__ == '__main__':
     wb = xlwt.Workbook()
     sheet = wb.add_sheet('test')  # sheet的名称为test
 
-    # 单元格的格式
-    style = 'pattern: pattern solid, fore_colour yellow; '  # 背景颜色为黄色
-    style += 'font: bold on; '  # 粗体字
+    style = 'pattern: pattern solid, fore_colour yellow; ' + 'font: bold on; '
     style += 'align: horz centre, vert center; '  # 居中
     header_style = xlwt.easyxf(style)
 

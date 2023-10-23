@@ -86,14 +86,15 @@ class ExcelPusher:
 
 if __name__ == "__main__":
     pusher = ExcelPusher()
-    directory_list = []
-    directory_list.append('course-subject-2018912')
-    directory_list.append('course-subject-2018913')
-    directory_list.append('course-subject-2018918')
-    directory_list.append('course-subject-20181011')
-    directory_list.append('course-subject-20181114')
-    directory_list.append('course-subject-20181116')
-    directory_list.append('course-subject-20181116-1')
-    directory_list.append('course-subject-20181116-2')
+    directory_list = [
+        'course-subject-2018912',
+        'course-subject-2018913',
+        'course-subject-2018918',
+        'course-subject-20181011',
+        'course-subject-20181114',
+        'course-subject-20181116',
+        'course-subject-20181116-1',
+        'course-subject-20181116-2',
+    ]
     for directory_name in directory_list:
         pusher.executePush(directory_name)

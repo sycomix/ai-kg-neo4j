@@ -93,13 +93,14 @@ class AutoCorrelation:
         设定学校范围
         :return: 
         """
-        self.school_dict = {}
-        self.school_dict[u'北航'] = u'北京航空航天大学'
-        self.school_dict[u'北交'] = u'北京交通大学'
-        self.school_dict[u'福师'] = u'福建师范大学'
-        self.school_dict[u'华师'] = u'华中师范大学'
-        self.school_dict[u'吉大'] = u'吉林大学'
-        self.school_dict[u'地大'] = u'中国地质大学(北京)'
+        self.school_dict = {
+            '北航': '北京航空航天大学',
+            '北交': '北京交通大学',
+            '福师': '福建师范大学',
+            '华师': '华中师范大学',
+            '吉大': '吉林大学',
+            '地大': '中国地质大学(北京)',
+        }
 
     def getSchoolNameFromFileName(self, filename):
         """
@@ -110,7 +111,7 @@ class AutoCorrelation:
         """
         if len(filename) < 2:
             return ''
-        schoolname = filename[0:2]
+        schoolname = filename[:2]
         if self.school_dict.__contains__(schoolname):
             schoolname = self.school_dict.get(schoolname)
 
@@ -128,7 +129,7 @@ class AutoCorrelation:
         if len(course_list) > 0:
             course_name = course_list[0]
             course_name = str(course_name).replace(u'（',u'(')
-            course_name = str(course_name).replace(u'）', u')')
+            course_name = course_name.replace(u'）', u')')
         return course_name
 
     def fileFormatValidating(self):
@@ -215,30 +216,27 @@ class AutoCorrelation:
         if cypherlist is None or filepath is None:
             return
 
-        fout = open(filepath, 'w')
-        fout.write('\n'.join(cypherlist))
-        fout.close()
+        with open(filepath, 'w') as fout:
+            fout.write('\n'.join(cypherlist))
 
 
     def saveProcessedCourse(self,rootpath, course_base_code):
-        output_mid_filepath = '{}/statistics-mid.txt'.format(rootpath)
-        fout = open(output_mid_filepath, 'a')
-        fout.write(course_base_code)
-        fout.write('\n')
-        fout.close()
+        output_mid_filepath = f'{rootpath}/statistics-mid.txt'
+        with open(output_mid_filepath, 'a') as fout:
+            fout.write(course_base_code)
+            fout.write('\n')
         self.course_processed_dict[course_base_code] = course_base_code
 
 
     def loadProcessedCourse(self, rootpath):
-        output_mid_filepath = '{}/statistics-mid.txt'.format(rootpath)
+        output_mid_filepath = f'{rootpath}/statistics-mid.txt'
         if not FilePath.fileExist(output_mid_filepath):
             return
-        fout = open(output_mid_filepath, 'r')
-        lines = fout.readlines()
-        for course_base_code in lines:
-            course_base_code = course_base_code.strip('\n')
-            self.course_processed_dict[course_base_code] = course_base_code
-        fout.close()
+        with open(output_mid_filepath, 'r') as fout:
+            lines = fout.readlines()
+            for course_base_code in lines:
+                course_base_code = course_base_code.strip('\n')
+                self.course_processed_dict[course_base_code] = course_base_code
 
 
 
@@ -252,11 +250,14 @@ class AutoCorrelation:
         #pass
 
         # 这里默认导出了数据文件
-        self.questionsourcefilepath = u'./../data/course-question-src/{}.xlsx'.format(coursename)
-        self.questiontargetfilepath = u'./../data/course-question-tgt/{}.txt'.format(coursename)
-        self.questionresultfilepath = u'./../data/knowledge-question-result/{}.txt'.format(coursename)
-        tt = os.path.abspath(self.questionsourcefilepath)
-        return  tt
+        self.questionsourcefilepath = (
+            f'./../data/course-question-src/{coursename}.xlsx'
+        )
+        self.questiontargetfilepath = f'./../data/course-question-tgt/{coursename}.txt'
+        self.questionresultfilepath = (
+            f'./../data/knowledge-question-result/{coursename}.txt'
+        )
+        return os.path.abspath(self.questionsourcefilepath)
 
     def associateFlow(self, course_list):
         """
@@ -390,8 +391,7 @@ class AutoCorrelation:
                 course_list = self.course_base_dict.get(course.coursebase_code)
                 course_list.append((course, f))
             else:
-                course_list = []
-                course_list.append((course, f))
+                course_list = [(course, f)]
                 self.course_base_dict[course.coursebase_code] = course_list
 
 
@@ -480,14 +480,12 @@ class AutoCorrelation:
         f_stat.close()
 
     def saveProcessedExamquestion(self, filepath):
-        fout = open(filepath, 'w')
-        exam_dict = self.exam_processor.exam_info.examquestion_dict
-        for course, exam_list in exam_dict.items():
-            for exam in exam_list:
-                fout.write(exam.code)
-                fout.write('\n')
-
-        fout.close()
+        with open(filepath, 'w') as fout:
+            exam_dict = self.exam_processor.exam_info.examquestion_dict
+            for course, exam_list in exam_dict.items():
+                for exam in exam_list:
+                    fout.write(exam.code)
+                    fout.write('\n')
 
 
 if __name__ == "__main__":

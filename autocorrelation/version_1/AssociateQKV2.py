@@ -116,9 +116,7 @@ class AssociateQKByKeyword:
             tup = (k, pointcount)
             qklist.append(tup)
 
-        # sort
-        sortlist = sorted(qklist, cmp=lambda x,y:cmp(y[1], x[1]))
-        return sortlist
+        return sorted(qklist, cmp=lambda x,y:cmp(y[1], x[1]))
 
     def getAssociateQK_Extension(self, question):
         qklist = {}

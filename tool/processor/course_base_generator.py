@@ -41,10 +41,10 @@ class CourseBaseGenerator:
         course_code_dict = self.course_info.course_code_dict
         for course_items in course_id_list:
             course_code = long(course_items[0])
-            course_base_name = course_items[1]
             course_code = str(course_code).decode('utf-8')
             if course_code_dict.__contains__(course_code):
                 course = course_code_dict.get(course_code)
+                course_base_name = course_items[1]
                 # 对course设置基础课程名称和编码
                 course.coursebase_name = course_base_name
                 self.generateCourseBaseCode(course)
@@ -69,16 +69,13 @@ class CourseBaseGenerator:
                 course = course_code_dict.get(course_id)
                 course_name = course.NewCourseName
                 course_name = str(course_name).replace(u'（', u'(')
-                course_name = str(course_name).replace(u'）', u')')
+                course_name = course_name.replace(u'）', u')')
                 result_dict[course.SchoolName + course_name] = course
         return result_dict
 
     def outputfile(self, filepath, result_list):
-        # 输出文档
-        fout = open(filepath, 'w')  # 以写得方式打开文件
-        fout.write('\n'.join(result_list))
-
-        fout.close()
+        with open(filepath, 'w') as fout:
+            fout.write('\n'.join(result_list))
 
     def loadBaseCourse(self, base_course_file):
         if not FilePath.fileExist(base_course_file):
@@ -109,7 +106,7 @@ class CourseBaseGenerator:
             else:
                 self.max_index = index
 
-            course.coursebase_code = 'open.bc.' + str(self.max_index)
+            course.coursebase_code = f'open.bc.{str(self.max_index)}'
             course.coursebase_index = self.max_index
 
             # 课程基础

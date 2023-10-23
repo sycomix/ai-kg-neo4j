@@ -90,13 +90,8 @@ class NGram:
             return
 
     def setNgramDict_sub(self, candidateword, leftword='', rightword=''):
-        leftweight = 1
-        rightweight = 1
-        if leftword == '':
-            leftweight = self.fp.sentenceweight
-        if rightword == '':
-            rightweight = self.fp.sentenceweight
-
+        leftweight = self.fp.sentenceweight if leftword == '' else 1
+        rightweight = self.fp.sentenceweight if rightword == '' else 1
         if self.candicatewords.__contains__(candidateword):
             temp_worddict = self.candicatewords[candidateword]
             if temp_worddict.__contains__(leftword):
@@ -112,11 +107,11 @@ class NGram:
 
             temp_worddict['count'] = temp_worddict['count'] + self.fp.sentenceweight
         else:
-            temp_worddict = {}
-            temp_worddict[leftword] = leftweight
-            temp_worddict[rightword] = rightweight
-
-            temp_worddict['count'] = self.fp.sentenceweight
+            temp_worddict = {
+                leftword: leftweight,
+                rightword: rightweight,
+                'count': self.fp.sentenceweight,
+            }
             self.candicatewords[candidateword] = temp_worddict
 
 
@@ -477,9 +472,7 @@ class NGram:
                 worddict = self.realwords[titleword]
                 worddict['confidence'] = worddict['confidence'] + 100.0
                 continue
-            ndict = {}
-            ndict['count'] = titleword_count * 30
-            ndict['confidence'] = 100.0
+            ndict = {'count': titleword_count * 30, 'confidence': 100.0}
             self.realwords[titleword] = ndict
 
     def word23lengthProcess(self):
@@ -488,13 +481,11 @@ class NGram:
             length = len(word)
             wordcount = self.wordfreq[word]
             if (length == 3 and wordcount > 100):
-                # 看看是否在realword中已经存在了，不存在可以加入，存在得话，就排除
-                hasexist = False
-                for realword in self.realwords.keys():
-                    if realword.__contains__(word):
-                        hasexist = True
-                        break
-                if hasexist == False:
+                hasexist = any(
+                    realword.__contains__(word)
+                    for realword in self.realwords.keys()
+                )
+                if not hasexist:
                     for realwordtup in self.outputwordslist:
                         if str(realwordtup[0]).__contains__(word):
                             hasexist = True
@@ -553,7 +544,7 @@ class NGram:
         if str(candiword).startswith(midword):
             # 当前为后缀
             for subword in candidict.keys():
-                if subword == 'count' or subword == 'midsame' or subword == 'midword'  or subword == 'confidence':
+                if subword in ['count', 'midsame', 'midword', 'confidence']:
                     continue
 
                 removewordlist.append(subword)
@@ -567,7 +558,7 @@ class NGram:
         elif str(candiword).endswith(midword):
             # 当前为前缀
             for subword in candidict.keys():
-                if subword == 'count' or subword == 'midsame' or subword == 'midword'  or subword == 'confidence':
+                if subword in ['count', 'midsame', 'midword', 'confidence']:
                     continue
 
                 removewordlist.append(subword)
@@ -637,9 +628,7 @@ class NGram:
                 worddict = self.realwords[quoteword]
                 worddict['count'] = worddict['count'] + quotewordcount
             elif quotewordcount > self.fp.quoteweight:
-                ndict = {}
-                ndict['count'] = quotewordcount
-                ndict['confidence'] = 100.0
+                ndict = {'count': quotewordcount, 'confidence': 100.0}
                 self.realwords[quoteword] = ndict
 
         # ngram 词输出
@@ -682,15 +671,13 @@ class NGram:
         for tup in sortlist:
             index = index + 1
             confidence = tup[6]
-            if confidence > 100.0:
-                confidence = 100.0
+            confidence = min(confidence, 100.0)
             ns = '{0} {1} {7} {2} {3} {4} {5} {6}'.format(index, tup[0],tup[1],tup[2],tup[3], tup[4], tup[5], confidence)
             wordlst.append(ns)
 
 
-        fout = open(self.outputfile, 'w')  # 以写得方式打开文件
-        fout.write('\n'.join(wordlst))  # 将分词好的结果写入到输出文件
-        fout.close()
+        with open(self.outputfile, 'w') as fout:
+            fout.write('\n'.join(wordlst))  # 将分词好的结果写入到输出文件
 
     def extractHotwords(self):
         # 政治学基础

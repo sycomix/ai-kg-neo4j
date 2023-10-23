@@ -85,10 +85,9 @@ class KnowledgeDeleter:
         print 'push over.'
 
     def saveProcessedFile(self, filepath, data):
-        f_out = open(filepath, 'a')
-        f_out.write(data)
-        f_out.write('\n')
-        f_out.close()
+        with open(filepath, 'a') as f_out:
+            f_out.write(data)
+            f_out.write('\n')
 
     def loadProcessedFile(self, filepath):
         if not FilePath.fileExist(filepath):

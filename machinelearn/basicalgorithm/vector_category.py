@@ -51,94 +51,82 @@ class TextVector:
 
     def generate_train_file(self):
         self.sentence_words_dict = {}
-        # 加载训练文本，训练文本有2部分组成，一部分是课件，一部分是试题
+        with open(self.course_path_info.vector_corpus_txt_filepath, 'w') as f_out:
+                # 第一步先加载分类目录
 
-        # 检查语料文件是否已经生成, 如果已经生成，则不用再生成
-        #if  FilePath.fileExist(self.course_path_info.vector_corpus_txt_filepath):
-        #    return
-        # 打开结果文件
-        f_out = open(self.course_path_info.vector_corpus_txt_filepath, 'w')
+            if self.course_path_info.courseware_source_txt_filepath:
+                fin = open(self.course_path_info.courseware_source_txt_filepath, 'r')  # 以读的方式打开文件
+                # 以第二层为判断点
+                # 合并第二层以下的点为一行
+                level_snd_list = []
+                write_line = ''
+                first_code = ''
+                first_name = ''
+                for index, line in enumerate(fin):
 
-        # 第一步先加载分类目录
+                    arr = line.split()
+                    code_line = arr[0]
+                    name_line = arr[1]
+                    code_section_list = code_line.split('.')
+                    if index == 0:
+                        first_code = code_line
+                        first_name = name_line
 
-        if self.course_path_info.courseware_source_txt_filepath:
-            fin = open(self.course_path_info.courseware_source_txt_filepath, 'r')  # 以读的方式打开文件
-            # 以第二层为判断点
-            # 合并第二层以下的点为一行
-            level_snd_list = []
-            write_line = ''
-            first_code = ''
-            first_name = ''
-            index = 0
-            for line in fin:
-
-                arr = line.split()
-                code_line = arr[0]
-                name_line = arr[1]
-                code_section_list = code_line.split('.')
-                if index == 0:
-                    first_code = code_line
-                    first_name = name_line
-
-                if len(code_section_list) == 1 :
-                    name_line1 = self.preprocessSent(name_line)
-                    #c_line_words = self.sentence_reader.splitSentenceCanRepeat(name_line1)
-                    c_line_words = self.sentence_reader.splitOneSentence(name_line1)
-                    c_line_words = self.postWordList(c_line_words)
-                    #section_name = ' '.join(c_line_words)
-                    f_out.write(' '.join(c_line_words))
-                    f_out.write('\n')
-                    self.catalog_code_dict[name_line] = (code_line, name_line, c_line_words)
-                elif len(code_section_list) == 2 :
-
-                    if len(level_snd_list) > 0:
-                        write_line = ' '.join(level_snd_list)
-                        write_line1 = self.preprocessSent(write_line)
-                        #c_line_words = self.sentence_reader.splitSentenceCanRepeat(write_line1)
-                        c_line_words = self.sentence_reader.splitOneSentence(write_line1)
+                    if len(code_section_list) == 1:
+                        name_line1 = self.preprocessSent(name_line)
+                        #c_line_words = self.sentence_reader.splitSentenceCanRepeat(name_line1)
+                        c_line_words = self.sentence_reader.splitOneSentence(name_line1)
                         c_line_words = self.postWordList(c_line_words)
-                        section_name = ' '.join(c_line_words)
-                        f_out.write(section_name)
+                        #section_name = ' '.join(c_line_words)
+                        f_out.write(' '.join(c_line_words))
                         f_out.write('\n')
-                        self.catalog_code_dict[first_name] = (first_code, first_name, c_line_words)
-                        # 第二层的数据
-                        self.snd_level_catalog.append('{} {} {}'.format(first_code, first_name, section_name))
-                    # 重置列表为空列表
-                    level_snd_list = []
-                    level_snd_list.append(name_line)
-                    first_code = code_line
-                    first_name = name_line
-                else:
-                    level_snd_list.append(name_line)
+                        self.catalog_code_dict[name_line] = (code_line, name_line, c_line_words)
+                    elif len(code_section_list) == 2:
 
-                index += 1
-            # 最后一项
-            write_line = ' '.join(level_snd_list)
-            write_line1 = self.preprocessSent(write_line)
-            #c_line_words = self.sentence_reader.splitSentenceCanRepeat(write_line1)
-            c_line_words = self.sentence_reader.splitOneSentence(write_line1)
-            c_line_words = self.postWordList(c_line_words)
-            section_name = ' '.join(c_line_words)
-            f_out.write(section_name)
-            f_out.write('\n')
-            self.catalog_code_dict[first_name] = (first_code, first_name, c_line_words)
+                        if len(level_snd_list) > 0:
+                            write_line = ' '.join(level_snd_list)
+                            write_line1 = self.preprocessSent(write_line)
+                            #c_line_words = self.sentence_reader.splitSentenceCanRepeat(write_line1)
+                            c_line_words = self.sentence_reader.splitOneSentence(write_line1)
+                            c_line_words = self.postWordList(c_line_words)
+                            section_name = ' '.join(c_line_words)
+                            f_out.write(section_name)
+                            f_out.write('\n')
+                            self.catalog_code_dict[first_name] = (first_code, first_name, c_line_words)
+                                                # 第二层的数据
+                            self.snd_level_catalog.append(f'{first_code} {first_name} {section_name}')
+                                        # 重置列表为空列表
+                        level_snd_list = [name_line]
+                        first_code = code_line
+                        first_name = name_line
+                    else:
+                        level_snd_list.append(name_line)
 
-            # 第二层的数据
-            self.snd_level_catalog.append('{} {} {}'.format(first_code,first_name, section_name))
-
-        # 第二步抽取的课程列表也作为训练样本
-        if self.course_name_list:
-            for course_name in self.course_name_list:
-                course_name1 = self.preprocessSent(course_name)
-                #word_list = self.sentence_reader.hanlpsplitor.extractKeyword(course_name, 1)
-                word_list = self.sentence_reader.splitSentenceCanRepeat(course_name1)
-                word_list = self.postWordList(word_list)
-                f_out.write(' '.join(word_list))
+                # 最后一项
+                write_line = ' '.join(level_snd_list)
+                write_line1 = self.preprocessSent(write_line)
+                #c_line_words = self.sentence_reader.splitSentenceCanRepeat(write_line1)
+                c_line_words = self.sentence_reader.splitOneSentence(write_line1)
+                c_line_words = self.postWordList(c_line_words)
+                section_name = ' '.join(c_line_words)
+                f_out.write(section_name)
                 f_out.write('\n')
+                self.catalog_code_dict[first_name] = (first_code, first_name, c_line_words)
 
-                self.sentence_words_dict[course_name] = word_list
+                        # 第二层的数据
+                self.snd_level_catalog.append(f'{first_code} {first_name} {section_name}')
 
-        f_out.close()
+            # 第二步抽取的课程列表也作为训练样本
+            if self.course_name_list:
+                for course_name in self.course_name_list:
+                    course_name1 = self.preprocessSent(course_name)
+                    #word_list = self.sentence_reader.hanlpsplitor.extractKeyword(course_name, 1)
+                    word_list = self.sentence_reader.splitSentenceCanRepeat(course_name1)
+                    word_list = self.postWordList(word_list)
+                    f_out.write(' '.join(word_list))
+                    f_out.write('\n')
+
+                    self.sentence_words_dict[course_name] = word_list
 
     def train(self):
 
@@ -185,10 +173,8 @@ class TextVector:
             if len(course_name_word_list) == 0:
                 self.course_catalog_unknow_list.append(course_name)
                 continue
-            # 遍历分类
-            index = 0
             res_list = []
-            for catalog_name in self.catalog_code_dict.keys():
+            for index, catalog_name in enumerate(self.catalog_code_dict.keys()):
 
                 catalog_tuple = self.catalog_code_dict.get(catalog_name)
                 catalog_code = catalog_tuple[0]
@@ -197,7 +183,6 @@ class TextVector:
                 score = self.pred_similarity(course_name_word_list, catalog_name_word_list)
                 res = ResultInfo.ResultInfo(index, score, catalog_code, catalog_name)
                 res_list.append(res)
-                index += 1
             # 对列表按score降序排列
             res_list.sort(cmp=None, key=lambda x: x.score, reverse=True)
 
@@ -210,41 +195,41 @@ class TextVector:
 
     def output_dict(self):
         filepath = self.course_path_info.correlation_txt_filepath
-        fout = open(filepath, 'w')  # 以写得方式打开文件
+        with open(filepath, 'w') as fout:
+                # 好的结果
+            good_result_desc = f'好的结果：{len(self.course_catalogs_good_dict.keys())}'
+            fout.write(good_result_desc)
+            fout.write('\n')
+            for course_name in self.course_catalogs_good_dict.keys():
+                catalog_list = self.course_catalogs_good_dict.get(course_name)
+                res_list = [
+                    result_catalog.toFullDescription()
+                    for result_catalog in catalog_list
+                ]
+                out_line = f"{course_name} -- {';'.join(res_list)}"
+                fout.writelines(out_line)  # 将分词好的结果写入到输出文件
+                fout.writelines('\n')
 
-        # 好的结果
-        good_result_desc = '好的结果：{}'.format(len(self.course_catalogs_good_dict.keys()))
-        fout.write(good_result_desc)
-        fout.write('\n')
-        for course_name in self.course_catalogs_good_dict.keys():
-            catalog_list = self.course_catalogs_good_dict.get(course_name)
-            res_list = []
-            for result_catalog in catalog_list:
-                res_list.append(result_catalog.toFullDescription())
-            out_line = '{} -- {}'.format(course_name,';'.join(res_list))
-            fout.writelines(out_line)  # 将分词好的结果写入到输出文件
-            fout.writelines('\n')
+                # 不好的结果
+            bad_result_desc = f'不好的结果：{len(self.course_catalogs_bad_dict.keys())}'
+            fout.write('\n\n\n')
+            fout.write(bad_result_desc)
+            fout.write('\n')
+            for course_name in self.course_catalogs_bad_dict.keys():
+                catalog_list = self.course_catalogs_bad_dict.get(course_name)
+                res_list = [
+                    result_catalog.toFullDescription()
+                    for result_catalog in catalog_list
+                ]
+                out_line = f"{course_name} -- {';'.join(res_list)}"
+                fout.writelines(out_line)  # 将分词好的结果写入到输出文件
+                fout.writelines('\n')
 
-        # 不好的结果
-        bad_result_desc = '不好的结果：{}'.format(len(self.course_catalogs_bad_dict.keys()))
-        fout.write('\n\n\n')
-        fout.write(bad_result_desc)
-        fout.write('\n')
-        for course_name in self.course_catalogs_bad_dict.keys():
-            catalog_list = self.course_catalogs_bad_dict.get(course_name)
-            res_list = []
-            for result_catalog in catalog_list:
-                res_list.append(result_catalog.toFullDescription())
-            out_line = '{} -- {}'.format(course_name,';'.join(res_list))
-            fout.writelines(out_line)  # 将分词好的结果写入到输出文件
-            fout.writelines('\n')
-
-        # 输出未被识别的课程
-        fout.writelines('\n\n')
-        for course_name in self.course_catalog_unknow_list:
-            fout.write(course_name)
-            fout.writelines('\n')
-        fout.close()
+            # 输出未被识别的课程
+            fout.writelines('\n\n')
+            for course_name in self.course_catalog_unknow_list:
+                fout.write(course_name)
+                fout.writelines('\n')
 
     def readCourseNameList(self):
         """
@@ -308,7 +293,7 @@ class TextVector:
         if len(course_list) > 0:
             course_name = course_list[0]
             course_name = str(course_name).replace(u'（',u'(')
-            course_name = str(course_name).replace(u'）', u')')
+            course_name = course_name.replace(u'）', u')')
         return course_name
 
     def preprocessSent(self, sent):
@@ -341,9 +326,8 @@ class TextVector:
         return result_list
 
     def outfile(self,filepath):
-        fout = open(filepath, 'w')
-        fout.writelines(self.snd_level_catalog)
-        fout.close()
+        with open(filepath, 'w') as fout:
+            fout.writelines(self.snd_level_catalog)
 
 if __name__ == "__main__":
 

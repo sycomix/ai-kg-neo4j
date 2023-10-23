@@ -132,34 +132,23 @@ class TreeFactory:
 
         return seq
     def addQueue(self, q, parentid, children_set):
-        # 先查找当前父亲有没有孩子节点，如果有，则加到队列中
-        candi_list = self.findChildren(parentid, children_set)
-        return candi_list
+        return self.findChildren(parentid, children_set)
 
     def findChildren(self, parentid, children_set):
-        # 从孩子集合中，查到需要的孩子
-        res = []
-        for child in children_set:
-            if child.parentid == parentid:
-                res.append(child)
-
-        return res
+        return [child for child in children_set if child.parentid == parentid]
 
     def outputTree(self, tree):
         k_list = []
         self.getKwgFromTree(k_list, tree.rootnode)
 
-        # 输出文档
-        fout = open(self.outputfile, 'a')  # 以写得方式打开文件
-        fout.write('\n')
-        fout.write('\n'.join(k_list))  # 将结果写入到输出文件
-
-        fout.close()
+        with open(self.outputfile, 'a') as fout:
+            fout.write('\n')
+            fout.write('\n'.join(k_list))  # 将结果写入到输出文件
     def getKwgFromTree(self, k_list, node):
         if node is None:
             return
 
-        k_list.append(node.code + ' ' +node.name)
+        k_list.append(f'{node.code} {node.name}')
 
         if len(node.children) > 0:
             for child in node.children:

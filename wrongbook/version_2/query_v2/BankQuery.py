@@ -72,11 +72,7 @@ class BankQuery(BaseQuery):
                 fieldlength = len(self.cyther.keys)
                 result = tx.run(cypherstatement).records()
                 for record in result:
-                    item = {}
-                    index = 0
-                    while index < fieldlength:
-                        item[self.cyther.keys[index]] = record[index]
-                        index = index + 1
+                    item = {self.cyther.keys[index]: record[index] for index in range(fieldlength)}
                     data.append(item)
 
                 return data

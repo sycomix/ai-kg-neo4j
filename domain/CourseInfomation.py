@@ -49,40 +49,35 @@ class Course(CourseBase):
         self.AppID = None
         self.CreateOrgID = None
 
-        pass
-
     def toString(self):
-        item_list = []
-        item_list.append(self.SchoolName)
-        item_list.append(self.SchoolCode)
-        item_list.append(self.NewCourseName)
-        #item_list.append(self.CourseID)
-        item_list.append(self.CourseCode)
-        item_list.append(self.ItemBankID)
-        res_string = ','.join(item_list)
-
-        return res_string
+        item_list = [
+            self.SchoolName,
+            self.SchoolCode,
+            self.NewCourseName,
+            self.CourseCode,
+            self.ItemBankID,
+        ]
+        return ','.join(item_list)
 
     def toStringByColumns(self):
         """
         'SchoolCode,SchoolName,CourseCode,OldCourseName,ItemBankID,CourseID,NewCourseName,AppID,CreateOrgID,'
         :return: 
         """
-        item_list = []
-        item_list.append(self.SchoolCode)
-        item_list.append(self.SchoolName)
-        item_list.append(self.CourseCode)
-        item_list.append(self.OldCourseName)
-        item_list.append(self.ItemBankID)
-        item_list.append(self.CourseID)
-        item_list.append(self.NewCourseName)
-        item_list.append(self.AppID)
-        item_list.append(self.CreateOrgID)
-        item_list.append(self.coursebase_name)
-        item_list.append(self.coursebase_code)
-        res_string = self.prefix + ','.join(item_list)
-
-        return res_string
+        item_list = [
+            self.SchoolCode,
+            self.SchoolName,
+            self.CourseCode,
+            self.OldCourseName,
+            self.ItemBankID,
+            self.CourseID,
+            self.NewCourseName,
+            self.AppID,
+            self.CreateOrgID,
+            self.coursebase_name,
+            self.coursebase_code,
+        ]
+        return self.prefix + ','.join(item_list)
 
 class CourseScore:
     """
@@ -117,25 +112,21 @@ class CourseScore:
         properties = []
         :return: 
         """
-        properties = []
-        properties.append(self.school_code)
-        properties.append(self.school_name)
-        properties.append(self.course_code)
-        properties.append(self.course_name)
-
-        properties.append(str(self.score_scope_more60_count))
-        properties.append(str(self.score_scope_between5060_count))
-        properties.append(str(self.score_scope_between4050_count))
-        properties.append(str(self.score_scope_less40_count))
-
-        properties.append(str(self.score_scope_more60_rate))
-        properties.append(str(self.score_scope_between5060_rate))
-        properties.append(str(self.score_scope_between4050_rate))
-        properties.append(str(self.score_scope_less40_rate))
-
-        result = ','.join(properties)
-
-        return result
+        properties = [
+            self.school_code,
+            self.school_name,
+            self.course_code,
+            self.course_name,
+            str(self.score_scope_more60_count),
+            str(self.score_scope_between5060_count),
+            str(self.score_scope_between4050_count),
+            str(self.score_scope_less40_count),
+            str(self.score_scope_more60_rate),
+            str(self.score_scope_between5060_rate),
+            str(self.score_scope_between4050_rate),
+            str(self.score_scope_less40_rate),
+        ]
+        return ','.join(properties)
 
     def initByString(self, course_str):
         """
@@ -194,30 +185,26 @@ class CourseScore:
     def getDescription(self):
         result_list = []
         if self.course is not None or (self.school_name is not None):
-            ns = '院校信息：{}  {}'.format(self.school_name, self.school_code)
+            ns = f'院校信息：{self.school_name}  {self.school_code}'
             result_list.append(ns)
 
-            ns = '课程信息：{}  {}'.format(self.course_name, self.course_code)
+            ns = f'课程信息：{self.course_name}  {self.course_code}'
             result_list.append(ns)
 
         self.compute()
-        ns = '试题总数：{}'.format(self.score_scope_total)
+        ns = f'试题总数：{self.score_scope_total}'
         result_list.append(ns)
 
-        ns = '比较靠谱数(60分以上)：{}  ，比较靠谱占比：{}%'.format(self.score_scope_more60_count,
-                                                   round(self.score_scope_more60_rate * 100, 2))
+        ns = f'比较靠谱数(60分以上)：{self.score_scope_more60_count}  ，比较靠谱占比：{round(self.score_scope_more60_rate * 100, 2)}%'
         result_list.append(ns)
 
-        ns = '基本靠谱数(50-60分)：{}  ，基本靠谱占比：{}%'.format(self.score_scope_between5060_count,
-                                                    round(self.score_scope_between5060_rate * 100, 2))
+        ns = f'基本靠谱数(50-60分)：{self.score_scope_between5060_count}  ，基本靠谱占比：{round(self.score_scope_between5060_rate * 100, 2)}%'
         result_list.append(ns)
 
-        ns = '不太靠谱数(40-50分)：{}  ，不太靠谱占比：{}%'.format(self.score_scope_between4050_count,
-                                                    round(self.score_scope_between4050_rate * 100, 2))
+        ns = f'不太靠谱数(40-50分)：{self.score_scope_between4050_count}  ，不太靠谱占比：{round(self.score_scope_between4050_rate * 100, 2)}%'
         result_list.append(ns)
 
-        ns = '不靠谱数(40分以下)：{}  ，不靠谱占比：{}%'.format(self.score_scope_less40_count,
-                                                 round(self.score_scope_less40_rate * 100, 2))
+        ns = f'不靠谱数(40分以下)：{self.score_scope_less40_count}  ，不靠谱占比：{round(self.score_scope_less40_rate * 100, 2)}%'
         result_list.append(ns)
 
         return result_list
@@ -271,50 +258,60 @@ class CourseFilepath:
         :param source_filetype:
         :return: 
         """
-        if not source_filetype is None:
+        if source_filetype is not None:
             self.sourse_filetype = source_filetype
 
         self.course = course
-        full_filename = '{}-{}-{}-{}'.format(course.SchoolName,course.SchoolCode,course.NewCourseName,course.CourseCode)
-        filename = '{}-{}'.format(course.SchoolCode, course.CourseCode)
-        coursebase_filename = '{}-{}'.format(course.coursebase_name,course.coursebase_code)
+        full_filename = f'{course.SchoolName}-{course.SchoolCode}-{course.NewCourseName}-{course.CourseCode}'
+        filename = f'{course.SchoolCode}-{course.CourseCode}'
+        coursebase_filename = f'{course.coursebase_name}-{course.coursebase_code}'
         # 生成转换c-src-txt的文件夹，该文件夹内的内容为文本文件结构，内容与源文件一致
-        FilePath.mkdir(self.courseware_source_directory + '/c-src-txt')
-        self.courseware_source_txt_filepath = u'{}/c-src-txt/{}.txt'.format(self.courseware_source_directory, filename)
+        FilePath.mkdir(f'{self.courseware_source_directory}/c-src-txt')
+        self.courseware_source_txt_filepath = (
+            f'{self.courseware_source_directory}/c-src-txt/{filename}.txt'
+        )
 
         # 生成转换c-kwg-txt的文件夹，该文件夹内的内容为文本文件结构，内容为抽取的知识点
-        FilePath.mkdir(self.courseware_source_directory + '/c-kwg-txt')
-        self.courseware_knowledge_txt_filepath = u'{}/c-kwg-txt/{}.txt'.format(self.courseware_source_directory, coursebase_filename)
+        FilePath.mkdir(f'{self.courseware_source_directory}/c-kwg-txt')
+        self.courseware_knowledge_txt_filepath = f'{self.courseware_source_directory}/c-kwg-txt/{coursebase_filename}.txt'
 
         # 生成转换q-src-txt的文件夹，该文件夹内的内容为文本文件结构，内容为试题的文本文件
-        FilePath.mkdir(self.courseware_source_directory + '/q-src-xls')
-        self.examquestion_source_xlsx_filepath = u'{}/q-src-xls/{}.xls'.format(self.courseware_source_directory, filename)
+        FilePath.mkdir(f'{self.courseware_source_directory}/q-src-xls')
+        self.examquestion_source_xlsx_filepath = (
+            f'{self.courseware_source_directory}/q-src-xls/{filename}.xls'
+        )
 
         # 生成转换q-src-txt的文件夹，该文件夹内的内容为文本文件结构，内容为试题的文本文件
-        FilePath.mkdir(self.courseware_source_directory + '/q-src-txt')
-        self.examquestion_source_txt_filepath = u'{}/q-src-txt/{}.txt'.format(self.courseware_source_directory, filename)
+        FilePath.mkdir(f'{self.courseware_source_directory}/q-src-txt')
+        self.examquestion_source_txt_filepath = (
+            f'{self.courseware_source_directory}/q-src-txt/{filename}.txt'
+        )
 
 
         # 生成上面3个txt文件，分词后合成的语料文件，corpus-txt的文件夹
-        FilePath.mkdir(self.courseware_source_directory + '/corpus-txt')
-        self.vector_corpus_txt_filepath = u'{}/corpus-txt/{}.txt'.format(self.courseware_source_directory, coursebase_filename)
+        FilePath.mkdir(f'{self.courseware_source_directory}/corpus-txt')
+        self.vector_corpus_txt_filepath = f'{self.courseware_source_directory}/corpus-txt/{coursebase_filename}.txt'
 
         # 生成模型文件夹，model-bin
-        FilePath.mkdir(self.courseware_source_directory + '/model-bin')
-        self.vector_model_bin_filepath = u'{}/model-bin/{}.model.bin'.format(self.courseware_source_directory, coursebase_filename)
+        FilePath.mkdir(f'{self.courseware_source_directory}/model-bin')
+        self.vector_model_bin_filepath = f'{self.courseware_source_directory}/model-bin/{coursebase_filename}.model.bin'
 
         # 生成关联后的文本文件，k-q-txt文件夹
-        FilePath.mkdir(self.courseware_source_directory + '/k-q-txt')
-        self.correlation_txt_filepath = u'{}/k-q-txt/{}.txt'.format(self.courseware_source_directory, coursebase_filename)
+        FilePath.mkdir(f'{self.courseware_source_directory}/k-q-txt')
+        self.correlation_txt_filepath = (
+            f'{self.courseware_source_directory}/k-q-txt/{coursebase_filename}.txt'
+        )
 
         # 生成关联后结果较差的excle文件，k-q-bad-xls文件夹
-        FilePath.mkdir(self.courseware_source_directory + '/k-q-bad-xls')
-        self.correlation_bad_xls_filepath = u'{}/k-q-bad-xls/{}.xls'.format(self.courseware_source_directory, coursebase_filename)
-        FilePath.mkdir(self.courseware_source_directory + '/k-q-good-xls')
-        self.correlation_good_xls_filepath = u'{}/k-q-good-xls/{}.xls'.format(self.courseware_source_directory, coursebase_filename)
+        FilePath.mkdir(f'{self.courseware_source_directory}/k-q-bad-xls')
+        self.correlation_bad_xls_filepath = f'{self.courseware_source_directory}/k-q-bad-xls/{coursebase_filename}.xls'
+        FilePath.mkdir(f'{self.courseware_source_directory}/k-q-good-xls')
+        self.correlation_good_xls_filepath = f'{self.courseware_source_directory}/k-q-good-xls/{coursebase_filename}.xls'
         # 生成关联后的文本文件，cypher-txt文件夹，用于导入到图数据库
-        FilePath.mkdir(self.courseware_source_directory + '/cypher-txt')
-        self.cypher_txt_filepath = u'{}/cypher-txt/{}'.format(self.courseware_source_directory, coursebase_filename)
+        FilePath.mkdir(f'{self.courseware_source_directory}/cypher-txt')
+        self.cypher_txt_filepath = (
+            f'{self.courseware_source_directory}/cypher-txt/{coursebase_filename}'
+        )
 
 
 
@@ -336,7 +333,9 @@ class CourseDictionary:
         self.course_school_name_dict = {}
 
         #self.__filepath = '{}/../data/dictionary/course-20181026.txt'.format(self.__curpath)
-        self.__filepath = '{}/../data/dictionary/{}'.format(self.__curpath, course_source_filename)
+        self.__filepath = (
+            f'{self.__curpath}/../data/dictionary/{course_source_filename}'
+        )
         self.initDictionary(self.__filepath)
 
     def initDictionary(self, filepath=None):
@@ -358,30 +357,28 @@ class CourseDictionary:
 
 
     def readOneCourseOnce(self, filepath):
-        f = open(filepath, 'r')
-        for line in f:
-            # 用逗号分隔
-            item_array = line.split(u',')
-            length_item = len(item_array)
-            if length_item < 18:
-                continue
-            n_course = Course()
-            n_course.SchoolCode = item_array[9].strip()
-            n_course.SchoolName = item_array[10].strip()
-            n_course.CourseCode = item_array[11].strip()
-            n_course.OldCourseName = item_array[12].strip()
-            n_course.ItemBankID = item_array[13].strip().upper()
-            n_course.CourseID = item_array[14].strip().upper()
-            n_course.NewCourseName = item_array[15].strip()
-            n_course.AppID = item_array[16].strip().upper()
-            n_course.CreateOrgID = item_array[17].strip().upper()
-            if length_item == 20:
-                n_course.coursebase_name = item_array[18].strip()
-                n_course.coursebase_code = item_array[19].strip()
+        with open(filepath, 'r') as f:
+            for line in f:
+                # 用逗号分隔
+                item_array = line.split(u',')
+                length_item = len(item_array)
+                if length_item < 18:
+                    continue
+                n_course = Course()
+                n_course.SchoolCode = item_array[9].strip()
+                n_course.SchoolName = item_array[10].strip()
+                n_course.CourseCode = item_array[11].strip()
+                n_course.OldCourseName = item_array[12].strip()
+                n_course.ItemBankID = item_array[13].strip().upper()
+                n_course.CourseID = item_array[14].strip().upper()
+                n_course.NewCourseName = item_array[15].strip()
+                n_course.AppID = item_array[16].strip().upper()
+                n_course.CreateOrgID = item_array[17].strip().upper()
+                if length_item == 20:
+                    n_course.coursebase_name = item_array[18].strip()
+                    n_course.coursebase_code = item_array[19].strip()
 
-            yield n_course
-
-        f.close()
+                yield n_course
 
 
     def getBankIdByCourseCode(self, coursecode):
@@ -394,20 +391,18 @@ class CourseDictionary:
         return bankid
 
     def getCourseByCourseCode(self, coursecode):
-        course = None
-        #str_id = str(courseid)
-        if self.course_code_dict.__contains__(coursecode):
-            course = self.course_code_dict[coursecode]
-
-        return course
+        return (
+            self.course_code_dict[coursecode]
+            if self.course_code_dict.__contains__(coursecode)
+            else None
+        )
 
     def getCourseByCourseId(self, courseid):
-        course = None
-        #str_id = str(courseid)
-        if self.course_id_dict.__contains__(courseid):
-            course = self.course_id_dict[courseid]
-
-        return course
+        return (
+            self.course_id_dict[courseid]
+            if self.course_id_dict.__contains__(courseid)
+            else None
+        )
 
     def getCourseByCoursename(self, name):
         course = None

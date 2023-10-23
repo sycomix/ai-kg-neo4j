@@ -55,27 +55,18 @@ class KmeansCategory:
 
     def generate_train_file(self):
         self.sentence_words_dict = {}
-        # 加载训练文本，训练文本有2部分组成，一部分是课件，一部分是试题
+        with open(self.course_path_info.vector_corpus_txt_filepath, 'w') as f_out:
+            # 第二步抽取的课程列表也作为训练样本
+            if self.course_name_list:
+                for course_name in self.course_name_list:
+                    course_name1 = self.preprocessSent(course_name)
+                    # word_list = self.sentence_reader.hanlpsplitor.extractKeyword(course_name, 1)
+                    word_list = self.sentence_reader.splitSentenceCanRepeat(course_name1)
+                    word_list = self.postWordList(word_list)
+                    f_out.write(' '.join(word_list))
+                    f_out.write('\n')
 
-        # 检查语料文件是否已经生成, 如果已经生成，则不用再生成
-        # if  FilePath.fileExist(self.course_path_info.vector_corpus_txt_filepath):
-        #    return
-        # 打开结果文件
-        f_out = open(self.course_path_info.vector_corpus_txt_filepath, 'w')
-
-        # 第二步抽取的课程列表也作为训练样本
-        if self.course_name_list:
-            for course_name in self.course_name_list:
-                course_name1 = self.preprocessSent(course_name)
-                # word_list = self.sentence_reader.hanlpsplitor.extractKeyword(course_name, 1)
-                word_list = self.sentence_reader.splitSentenceCanRepeat(course_name1)
-                word_list = self.postWordList(word_list)
-                f_out.write(' '.join(word_list))
-                f_out.write('\n')
-
-                self.sentence_words_dict[course_name] = word_list
-
-        f_out.close()
+                    self.sentence_words_dict[course_name] = word_list
 
     def train(self):
 
@@ -107,13 +98,9 @@ class KmeansCategory:
         self.model_loaded = model
 
     def getSentenceVector(self, words_list):
-        arr = []
-        for w in words_list:
-            arr.append(self.model_loaded.wv[w])
+        arr = [self.model_loaded.wv[w] for w in words_list]
         np_array = np.array(arr)
-        np_array_mean = np_array.mean(axis=0)
-
-        return np_array_mean
+        return np_array.mean(axis=0)
 
     def pred_similarity(self, question_words, knowledge_words):
         # 判断问题和知识点之间的向量相似度
@@ -132,10 +119,8 @@ class KmeansCategory:
             if len(course_name_word_list) == 0:
                 self.course_catalog_unknow_list.append(course_name)
                 continue
-            # 遍历分类
-            index = 0
             res_list = []
-            for catalog_name in self.catalog_code_dict.keys():
+            for index, catalog_name in enumerate(self.catalog_code_dict.keys()):
                 catalog_tuple = self.catalog_code_dict.get(catalog_name)
                 catalog_code = catalog_tuple[0]
                 catalog_name_word_list = catalog_tuple[2]
@@ -143,7 +128,6 @@ class KmeansCategory:
                 score = self.pred_similarity(course_name_word_list, catalog_name_word_list)
                 res = ResultInfo.ResultInfo(index, score, catalog_code, catalog_name)
                 res_list.append(res)
-                index += 1
             # 对列表按score降序排列
             res_list.sort(cmp=None, key=lambda x: x.score, reverse=True)
 
@@ -156,41 +140,41 @@ class KmeansCategory:
 
     def output_dict(self):
         filepath = self.course_path_info.correlation_txt_filepath
-        fout = open(filepath, 'w')  # 以写得方式打开文件
+        with open(filepath, 'w') as fout:
+                # 好的结果
+            good_result_desc = f'好的结果：{len(self.course_catalogs_good_dict.keys())}'
+            fout.write(good_result_desc)
+            fout.write('\n')
+            for course_name in self.course_catalogs_good_dict.keys():
+                catalog_list = self.course_catalogs_good_dict.get(course_name)
+                res_list = [
+                    result_catalog.toFullDescription()
+                    for result_catalog in catalog_list
+                ]
+                out_line = f"{course_name} -- {';'.join(res_list)}"
+                fout.writelines(out_line)  # 将分词好的结果写入到输出文件
+                fout.writelines('\n')
 
-        # 好的结果
-        good_result_desc = '好的结果：{}'.format(len(self.course_catalogs_good_dict.keys()))
-        fout.write(good_result_desc)
-        fout.write('\n')
-        for course_name in self.course_catalogs_good_dict.keys():
-            catalog_list = self.course_catalogs_good_dict.get(course_name)
-            res_list = []
-            for result_catalog in catalog_list:
-                res_list.append(result_catalog.toFullDescription())
-            out_line = '{} -- {}'.format(course_name, ';'.join(res_list))
-            fout.writelines(out_line)  # 将分词好的结果写入到输出文件
-            fout.writelines('\n')
+                # 不好的结果
+            bad_result_desc = f'不好的结果：{len(self.course_catalogs_bad_dict.keys())}'
+            fout.write('\n\n\n')
+            fout.write(bad_result_desc)
+            fout.write('\n')
+            for course_name in self.course_catalogs_bad_dict.keys():
+                catalog_list = self.course_catalogs_bad_dict.get(course_name)
+                res_list = [
+                    result_catalog.toFullDescription()
+                    for result_catalog in catalog_list
+                ]
+                out_line = f"{course_name} -- {';'.join(res_list)}"
+                fout.writelines(out_line)  # 将分词好的结果写入到输出文件
+                fout.writelines('\n')
 
-        # 不好的结果
-        bad_result_desc = '不好的结果：{}'.format(len(self.course_catalogs_bad_dict.keys()))
-        fout.write('\n\n\n')
-        fout.write(bad_result_desc)
-        fout.write('\n')
-        for course_name in self.course_catalogs_bad_dict.keys():
-            catalog_list = self.course_catalogs_bad_dict.get(course_name)
-            res_list = []
-            for result_catalog in catalog_list:
-                res_list.append(result_catalog.toFullDescription())
-            out_line = '{} -- {}'.format(course_name, ';'.join(res_list))
-            fout.writelines(out_line)  # 将分词好的结果写入到输出文件
-            fout.writelines('\n')
-
-        # 输出未被识别的课程
-        fout.writelines('\n\n')
-        for course_name in self.course_catalog_unknow_list:
-            fout.write(course_name)
-            fout.writelines('\n')
-        fout.close()
+            # 输出未被识别的课程
+            fout.writelines('\n\n')
+            for course_name in self.course_catalog_unknow_list:
+                fout.write(course_name)
+                fout.writelines('\n')
 
     def readCourseNameList(self):
         """
@@ -254,7 +238,7 @@ class KmeansCategory:
         if len(course_list) > 0:
             course_name = course_list[0]
             course_name = str(course_name).replace(u'（', u'(')
-            course_name = str(course_name).replace(u'）', u')')
+            course_name = course_name.replace(u'）', u')')
         return course_name
 
     def preprocessSent(self, sent):
@@ -287,9 +271,8 @@ class KmeansCategory:
         return result_list
 
     def outfile(self, filepath):
-        fout = open(filepath, 'w')
-        fout.writelines(self.snd_level_catalog)
-        fout.close()
+        with open(filepath, 'w') as fout:
+            fout.writelines(self.snd_level_catalog)
 
 
 if __name__ == "__main__":

@@ -64,11 +64,7 @@ class BankCypher(BaseCypher):
         :param jsondata: 
         :return: False, True
         """
-        flag = True
-
         if not jsondata.__contains__('ItemBankId'):
-            flag = False
             self.resp.setResult(self.result, -1, 'itemBankId not cantains')
-            return flag
-
-        return flag
+            return False
+        return True

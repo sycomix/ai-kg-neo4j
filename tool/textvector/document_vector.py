@@ -45,76 +45,69 @@ class TextVector:
         #    return
         catalog_corpus_file = u'D:/pythonproject/open-neo4j-service/data/course-base/本科专业目录-catalog.corpus.txt'
         catalog_xls_file = u'D:/pythonproject/open-neo4j-service/data/course-base/本科专业目录-catalog.xlsx.txt'
-        # 打开结果文件
-        f_out = open(catalog_corpus_file, 'w')
+        with open(catalog_corpus_file, 'w') as f_out:
+                # 第一步先加载分类目录
 
-        # 第一步先加载分类目录
+            if FilePath.fileExist(catalog_xls_file):
+                fin = open(catalog_xls_file, 'r')  # 以读的方式打开文件
+                # 以第二层为判断点
+                # 合并第二层以下的点为一行
+                level_snd_list = []
+                write_line = ''
+                first_code = ''
+                first_name = ''
+                for index, line in enumerate(fin):
+                    arr = line.split()
+                    code_line = arr[0]
+                    name_line = arr[1]
+                    code_section_list = code_line.split('.')
+                    if index == 0:
+                        first_code = code_line
+                        first_name = name_line
 
-        if FilePath.fileExist(catalog_xls_file):
-            fin = open(catalog_xls_file, 'r')  # 以读的方式打开文件
-            # 以第二层为判断点
-            # 合并第二层以下的点为一行
-            level_snd_list = []
-            write_line = ''
-            first_code = ''
-            first_name = ''
-            index = 0
-            for line in fin:
-                arr = line.split()
-                code_line = arr[0]
-                name_line = arr[1]
-                code_section_list = code_line.split('.')
-                if index == 0:
-                    first_code = code_line
-                    first_name = name_line
-
-                if len(code_section_list) == 1 :
-                    name_line1 = self.preprocessSent(name_line)
-                    #c_line_words = self.sentence_reader.splitSentenceCanRepeat(name_line1)
-                    c_line_words = self.sentence_reader.splitOneSentence(name_line1)
-                    c_line_words = self.postWordList(c_line_words)
-                    #section_name = ' '.join(c_line_words)
-                    f_out.write(' '.join(c_line_words))
-                    f_out.write('\n')
-                    self.catalog_code_dict[name_line] = (code_line, name_line, c_line_words)
-                elif len(code_section_list) == 2 :
-
-                    if len(level_snd_list) > 0:
-                        write_line = ' '.join(level_snd_list)
-                        write_line1 = self.preprocessSent(write_line)
-                        #c_line_words = self.sentence_reader.splitSentenceCanRepeat(write_line1)
-                        c_line_words = self.sentence_reader.splitOneSentence(write_line1)
+                    if len(code_section_list) == 1:
+                        name_line1 = self.preprocessSent(name_line)
+                        #c_line_words = self.sentence_reader.splitSentenceCanRepeat(name_line1)
+                        c_line_words = self.sentence_reader.splitOneSentence(name_line1)
                         c_line_words = self.postWordList(c_line_words)
-                        section_name = ' '.join(c_line_words)
-                        f_out.write(section_name)
+                        #section_name = ' '.join(c_line_words)
+                        f_out.write(' '.join(c_line_words))
                         f_out.write('\n')
-                        self.catalog_code_dict[first_name] = (first_code, first_name, c_line_words)
-                        # 第二层的数据
-                        self.snd_level_catalog.append((first_code, first_name, section_name, c_line_words))
-                    # 重置列表为空列表
-                    level_snd_list = []
-                    level_snd_list.append(name_line)
-                    first_code = code_line
-                    first_name = name_line
-                else:
-                    level_snd_list.append(name_line)
+                        self.catalog_code_dict[name_line] = (code_line, name_line, c_line_words)
+                    elif len(code_section_list) == 2:
 
-                index += 1
-            # 最后一项
-            write_line = ' '.join(level_snd_list)
-            write_line1 = self.preprocessSent(write_line)
-            #c_line_words = self.sentence_reader.splitSentenceCanRepeat(write_line1)
-            c_line_words = self.sentence_reader.splitOneSentence(write_line1)
-            c_line_words = self.postWordList(c_line_words)
-            section_name = ' '.join(c_line_words)
-            f_out.write(section_name)
-            f_out.write('\n')
-            self.catalog_code_dict[first_name] = (first_code, first_name, c_line_words)
+                        if len(level_snd_list) > 0:
+                            write_line = ' '.join(level_snd_list)
+                            write_line1 = self.preprocessSent(write_line)
+                            #c_line_words = self.sentence_reader.splitSentenceCanRepeat(write_line1)
+                            c_line_words = self.sentence_reader.splitOneSentence(write_line1)
+                            c_line_words = self.postWordList(c_line_words)
+                            section_name = ' '.join(c_line_words)
+                            f_out.write(section_name)
+                            f_out.write('\n')
+                            self.catalog_code_dict[first_name] = (first_code, first_name, c_line_words)
+                            # 第二层的数据
+                            self.snd_level_catalog.append((first_code, first_name, section_name, c_line_words))
+                                        # 重置列表为空列表
+                        level_snd_list = [name_line]
+                        first_code = code_line
+                        first_name = name_line
+                    else:
+                        level_snd_list.append(name_line)
 
-            # 第二层的数据
-            self.snd_level_catalog.append((first_code, first_name, section_name, c_line_words))
+                # 最后一项
+                write_line = ' '.join(level_snd_list)
+                write_line1 = self.preprocessSent(write_line)
+                #c_line_words = self.sentence_reader.splitSentenceCanRepeat(write_line1)
+                c_line_words = self.sentence_reader.splitOneSentence(write_line1)
+                c_line_words = self.postWordList(c_line_words)
+                section_name = ' '.join(c_line_words)
+                f_out.write(section_name)
+                f_out.write('\n')
+                self.catalog_code_dict[first_name] = (first_code, first_name, c_line_words)
 
-        f_out.close()
+                # 第二层的数据
+                self.snd_level_catalog.append((first_code, first_name, section_name, c_line_words))
 
     def postWordList(self, word_list):
 

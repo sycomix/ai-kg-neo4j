@@ -75,10 +75,10 @@ class AutoCorrelation:
 
         # 生成knowledge的目标文件名称
         fileNames = os.path.splitext(self.knowledgetargetfilepath)
-        self.knowledgetargetfilepath = fileNames[0] + '-knowledge.txt'
+        self.knowledgetargetfilepath = f'{fileNames[0]}-knowledge.txt'
 
         # 生成question的结果文件名称
-        self.questionresultfilepath = fileNames[0] + '-result.txt'
+        self.questionresultfilepath = f'{fileNames[0]}-result.txt'
 
     def extractKnowledgeFromSourceFile(self):
         """
@@ -137,8 +137,7 @@ class AutoCorrelation:
         # 这里默认导出了数据文件
         self.questionsourcefilepath = './../data/course-question-src/0701.xlsx'
         self.questiontargetfilepath = './../data/course-question-tgt/0701.xlsx'
-        tt = os.path.abspath(self.questionsourcefilepath)
-        return  tt
+        return os.path.abspath(self.questionsourcefilepath)
 
     def associateFlow(self):
         """
@@ -146,7 +145,7 @@ class AutoCorrelation:
         :return: 
         """
         # 第一步：检测源文件是否有效
-        if False == self.fileFormatValidating():
+        if self.fileFormatValidating() == False:
             return
         # 第二步：处理课程源文件，生成知识点
         self.knowledgeSourceFileProcess()

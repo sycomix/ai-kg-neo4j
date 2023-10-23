@@ -109,9 +109,9 @@ class WordnetGenerator:
             self.sentcypherlist = []
             # 处理同层的概念，同层的概念直接建立关系
             index = 0
+            posindex = 0
             for poslist in wordlist:
 
-                posindex = 0
                 # 同层，也就是词性相同的词，是并列关系，他们直接相互存在关系
                 self.createRelationLayerInner(poslist, index)
                 index = index + 1
@@ -121,11 +121,9 @@ class WordnetGenerator:
             index= 0
             while index < length - 1:
                 self.createRelationLayerOuter(wordlist[index],wordlist[index+1],index)
-                index = index + 1
+                index += 1
 
-            # 合并cypher
-            cypherstatement = '\r\n'.join(self.sentcypherlist) + ';'
-            yield cypherstatement
+            yield '\r\n'.join(self.sentcypherlist) + ';'
             #self.cypherlist.append(cypherstatement)
 
 
@@ -147,21 +145,19 @@ class WordnetGenerator:
                 nseq = seq + str(posindex)
                 wns = "MERGE (w{0}:WORD {{name: '{1}'}})".format(nseq,poslist[posindex])
                 cypher.append(wns)
-                posindex = posindex + 1
+                posindex += 1
 
             posindex = 0
             while posindex < poslength - 1:
                 # create relation cypher
                 subposlist = poslist[posindex:]
-                subposindex = 1
                 sublength = len(subposlist)
-                while subposindex < sublength:
+                for subposindex in range(1, sublength):
                     start_seq = seq + str(posindex)
                     end_seq = seq + str(posindex + subposindex)
                     rns = "MERGE (w{0})-[:NEXT]->(w{1})".format(start_seq, end_seq)
                     cypher.append(rns)
-                    subposindex = subposindex + 1
-                posindex = posindex + 1
+                posindex += 1
         else:
             nseq = seq + str(0)
             wns = "MERGE (w{0}:WORD {{name: '{1}'}})".format(nseq,poslist[0])
@@ -175,21 +171,15 @@ class WordnetGenerator:
         aft_seq = str(index + 1)
         pre_length = len(poslist)
         aft_length = len(nextposlist)
-        pre_index = 0
         cypher = []
         # 2层循环
-        while pre_index < pre_length:
+        for pre_index in range(pre_length):
             start_seq = pre_seq + str(pre_index)
-            pre_index = pre_index + 1
-
-            aft_index = 0
-            while aft_index < aft_length:
+            for aft_index in range(aft_length):
                 end_seq = aft_seq + str(aft_index)
                 rns = "MERGE (w{0})-[:NEXT]->(w{1})".format(start_seq, end_seq)
                 cypher.append(rns)
-                aft_index = aft_index + 1
-
-        if len(cypher) > 0:
+        if cypher:
             cypherstatement = '\r\n'.join(cypher)
             self.sentcypherlist.append(cypherstatement)
 

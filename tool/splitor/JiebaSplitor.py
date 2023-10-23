@@ -26,10 +26,9 @@ class JiebaSplitor:
         self.wordposlist = []
         # 把停用词做成字典
         self.stopwords = {}
-        fstop = open('./../data/stopwords.txt', 'r')
-        for eachWord in fstop:
-            self.stopwords[eachWord.strip().decode('utf-8', 'ignore')] = eachWord.strip().decode('utf-8', 'ignore')
-        fstop.close()
+        with open('./../data/stopwords.txt', 'r') as fstop:
+            for eachWord in fstop:
+                self.stopwords[eachWord.strip().decode('utf-8', 'ignore')] = eachWord.strip().decode('utf-8', 'ignore')
 
     def split1list(self, sentence):
         line = sentence.strip().decode('utf-8', 'ignore')  # 去除每行首尾可能出现的空格，并转为Unicode进行处理
@@ -80,7 +79,7 @@ class JiebaSplitor:
             if self.isFormWord(w):
                 continue
 
-            wordpos =  w.word + '   ' + w.flag
+            wordpos = f'{w.word}   {w.flag}'
             self.wordposlist.append(wordpos)
 
             if w.flag == preflag:
@@ -99,7 +98,7 @@ class JiebaSplitor:
     def isFormWord(self, w):
         flag = False
 
-        if w.flag == 'c' or w.flag == 'e' or w.flag == 'f' or w.flag == 'h' or w.flag == 'p' or w.flag == 't':
+        if w.flag in ['c', 'e', 'f', 'h', 'p', 't']:
             flag = True
 
         if w.flag == 'r' or w.flag == 'm' or str(w.flag).__contains__('d'):

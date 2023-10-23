@@ -21,8 +21,7 @@ from sklearn.naive_bayes import MultinomialNB  # 多项式贝叶斯算法
 
 def readFile(path):
     with open(path, 'r', errors='ignore') as file:  # 文档中编码有些问题，所有用errors过滤错误
-        content = file.read()
-        return content
+        return file.read()
 
 
 def saveFile(path, result):
@@ -84,8 +83,7 @@ def writeBunch(path, bunchFile):
 
 
 def getStopWord(inputFile):
-    stopWordList = readFile(inputFile).splitlines()
-    return stopWordList
+    return readFile(inputFile).splitlines()
 
 
 def getTFIDFMat(inputPath, stopWordList, outputPath):  # 求得TF-IDF向量
@@ -139,15 +137,20 @@ def main():
 
     path = 'D:/pythonproject/open-neo4j-service/data/machine-learning/multi-NB-corpus'
     # 分词，第一个是分词输入，第二个参数是结果保存的路径
-    segText(path+'/data/', path+'/segResult/')
-    bunchSave(path+"/segResult/", path+"/train_set.dat")  # 输入分词，输出分词向量
-    stopWordList = getStopWord(path+"/stop/stopword.txt")  # 获取停用词
-    getTFIDFMat(path+"/train_set.dat", stopWordList, path+"/tfidfspace.dat")  # 输入词向量，输出特征空间
+    segText(f'{path}/data/', f'{path}/segResult/')
+    bunchSave(f"{path}/segResult/", f"{path}/train_set.dat")
+    stopWordList = getStopWord(f"{path}/stop/stopword.txt")
+    getTFIDFMat(f"{path}/train_set.dat", stopWordList, f"{path}/tfidfspace.dat")
 
     # 训练集
-    segText(path+"/test1/", path+"/test_segResult/")  # 分词
-    bunchSave(path+"/test_segResult/", path+"/test_set.dat")
-    getTestSpace(path+"/test_set.dat", path+"/tfidfspace.dat", stopWordList, path+"/testspace.dat")
-    bayesAlgorithm(path+"/tfidfspace.dat", path+"/testspace.dat")
+    segText(f"{path}/test1/", f"{path}/test_segResult/")
+    bunchSave(f"{path}/test_segResult/", f"{path}/test_set.dat")
+    getTestSpace(
+        f"{path}/test_set.dat",
+        f"{path}/tfidfspace.dat",
+        stopWordList,
+        f"{path}/testspace.dat",
+    )
+    bayesAlgorithm(f"{path}/tfidfspace.dat", f"{path}/testspace.dat")
 
 main()

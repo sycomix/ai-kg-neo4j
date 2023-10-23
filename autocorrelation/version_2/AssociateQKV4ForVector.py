@@ -74,7 +74,6 @@ class AssociateQKByKeyword:
         #self.doc_vec.train_input_course_file =
         self.doc_vec.knowledge = self.knowledge
         self.doc_vec.train()
-        pass
     def predication(self):
         self.bad_examquestion_list = []
         self.course_score = CourseInfomation.CourseScore()
@@ -167,9 +166,7 @@ class AssociateQKByKeyword:
     def badExamquestionStatistics(self, res_list):
         flag = False
         if res_list is None:
-            flag = True
-            return flag
-
+            return True
         for res in res_list:
             if res.score < 0.45:
                 flag = True
@@ -277,7 +274,7 @@ class AssociateQKByKeyword:
         for line in ids_lines:
             line = line.strip('\n')
             index = line.index('::')
-            k = line[0:index]
+            k = line[:index]
             q = line[index+2:]
 
             qindex = qindex + 1
@@ -287,7 +284,7 @@ class AssociateQKByKeyword:
             # 然后再遍历知识点
 
             find_same_flag = False
-            for old_q in question_map.keys():
+            for old_q in question_map:
                 old_q_list = question_map.get(old_q)
                 old_q_words = self.sentence.splitOneSentence(old_q)
 
@@ -301,7 +298,7 @@ class AssociateQKByKeyword:
 
         # 过滤下，对于list是空的，不要管
         self.result_map = {}
-        for q_key in question_map.keys():
+        for q_key in question_map:
             q_list = question_map.get(q_key)
             if len(q_list) > 0:
                 self.result_map[q_key] = q_list
@@ -338,7 +335,7 @@ class AssociateQKByKeyword:
             k_parent = self.knowledgeByCode[k_code_n]
             if not resdict.__contains__(k_code_n):
                 resdict[k_parent[2]] = ''
-                k_parent_tup = (k_parent[0]+'--'+k[0], k[1], k[2], k[3])
+                k_parent_tup = f'{k_parent[0]}--{k[0]}', k[1], k[2], k[3]
                 #reslist.append(k_parent_tup)
                 reslist.append(k_parent_tup)
 
@@ -351,7 +348,7 @@ class AssociateQKByKeyword:
         wordlist = []
         index = 0
         for item in inputlist:
-            ns = '{} (可信度：{})'.format(item.text, item.score)
+            ns = f'{item.text} (可信度：{item.score})'
             reslist.append(ns)
             wordlist.append(item.text)
             k.append(item)
@@ -380,14 +377,13 @@ class AssociateQKByKeyword:
 
 
     def outputResult(self):
-        fout = open(self.course_path_info.correlation_txt_filepath, 'w')  # 以写得方式打开文件
-        fout.writelines(self.outputcontentlist)  # 将分词好的结果写入到输出文件
+        with open(self.course_path_info.correlation_txt_filepath, 'w') as fout:
+            fout.writelines(self.outputcontentlist)  # 将分词好的结果写入到输出文件
 
-        for same_q in self.result_map:
-            q_list = self.result_map.get(same_q)
-            line = '{} -- 重复题数量：{}'.format(same_q, len(q_list))
-            fout.write(line + '\n')
-        fout.close()
+            for same_q in self.result_map:
+                q_list = self.result_map.get(same_q)
+                line = f'{same_q} -- 重复题数量：{len(q_list)}'
+                fout.write(line + '\n')
 
     def executeAssociate(self):
         self.readRegularKnowledgeList()

@@ -49,7 +49,6 @@ class TreeFactory:
         self.__initPrefixwords__()
         self.__initMiddlewords__()
         self.__init_re()
-        pass
 
     def __init_re(self):
         # 定义正则
@@ -67,51 +66,44 @@ class TreeFactory:
         self.re_nouse_tag_seq = [self.re_nouse_tag_seq_1, self.re_nouse_tag_seq_2]
 
     def __initStopwords__(self):
-        fstop = open(self.__curpath+'/../../data/dictionary/stopwords-pre-v20180817.txt', 'r')
-        for eachWord in fstop:
-            eachWord = eachWord.strip()
-            eachWord = eachWord.decode('utf-8', 'ignore')
-            #length = len(eachWord)
-            #tup = (eachWord, length)
-            #self.stopwordlist.append(tup)
-            self.stopwords[eachWord] = eachWord
-        fstop.close()
+        with open(f'{self.__curpath}/../../data/dictionary/stopwords-pre-v20180817.txt', 'r') as fstop:
+            for eachWord in fstop:
+                eachWord = eachWord.strip()
+                eachWord = eachWord.decode('utf-8', 'ignore')
+                #length = len(eachWord)
+                #tup = (eachWord, length)
+                #self.stopwordlist.append(tup)
+                self.stopwords[eachWord] = eachWord
 
     def __initSuffixwords__(self):
-        fstop = open(self.__curpath+'/../../data/dictionary/remove_words_suffix.txt', 'r')
-
-        for eachWord in fstop:
-            eachWord = eachWord.strip()
-            eachWord = eachWord.decode('utf-8', 'ignore')
-            #length = len(eachWord)
-            #tup = (eachWord, length)
-            #self.stopwordlist.append(tup)
-            self.suffixwords.append(eachWord)
-        fstop.close()
+        with open(f'{self.__curpath}/../../data/dictionary/remove_words_suffix.txt', 'r') as fstop:
+            for eachWord in fstop:
+                eachWord = eachWord.strip()
+                eachWord = eachWord.decode('utf-8', 'ignore')
+                #length = len(eachWord)
+                #tup = (eachWord, length)
+                #self.stopwordlist.append(tup)
+                self.suffixwords.append(eachWord)
 
     def __initPrefixwords__(self):
-        fstop = open(self.__curpath+'/../../data/dictionary/remove_words_prefix.txt', 'r')
-
-        for eachWord in fstop:
-            eachWord = eachWord.strip()
-            eachWord = eachWord.decode('utf-8', 'ignore')
-            #length = len(eachWord)
-            #tup = (eachWord, length)
-            #self.stopwordlist.append(tup)
-            self.prefixwords.append(eachWord)
-        fstop.close()
+        with open(f'{self.__curpath}/../../data/dictionary/remove_words_prefix.txt', 'r') as fstop:
+            for eachWord in fstop:
+                eachWord = eachWord.strip()
+                eachWord = eachWord.decode('utf-8', 'ignore')
+                #length = len(eachWord)
+                #tup = (eachWord, length)
+                #self.stopwordlist.append(tup)
+                self.prefixwords.append(eachWord)
 
     def __initMiddlewords__(self):
-        fstop = open(self.__curpath+'/../../data/dictionary/remove_words_middle.txt', 'r')
-
-        for eachWord in fstop:
-            eachWord = eachWord.strip()
-            eachWord = eachWord.decode('utf-8', 'ignore')
-            #length = len(eachWord)
-            #tup = (eachWord, length)
-            #self.stopwordlist.append(tup)
-            self.middlewords.append(eachWord)
-        fstop.close()
+        with open(f'{self.__curpath}/../../data/dictionary/remove_words_middle.txt', 'r') as fstop:
+            for eachWord in fstop:
+                eachWord = eachWord.strip()
+                eachWord = eachWord.decode('utf-8', 'ignore')
+                #length = len(eachWord)
+                #tup = (eachWord, length)
+                #self.stopwordlist.append(tup)
+                self.middlewords.append(eachWord)
 
     def getFileContentRows(self):
         """
@@ -285,16 +277,14 @@ class TreeFactory:
         k_list = []
         self.getKwgFromTree(k_list, tree.rootnode)
 
-        # 输出文档
-        fout = open(self.course_filepath_list[0].courseware_knowledge_txt_filepath, 'w')  # 以写得方式打开文件
-        fout.write('\n'.join(k_list))  # 将结果写入到输出文件
-        fout.close()
+        with open(self.course_filepath_list[0].courseware_knowledge_txt_filepath, 'w') as fout:
+            fout.write('\n'.join(k_list))  # 将结果写入到输出文件
 
     def getKwgFromTree(self, k_list, node):
         if node is None:
             return
 
-        k_list.append(node.code + ' ' +node.name)
+        k_list.append(f'{node.code} {node.name}')
 
         if len(node.children) > 0:
             for child in node.children:
@@ -303,13 +293,11 @@ class TreeFactory:
 
     def judgeLevel(self, line):
         flag = False
-        level = -1
         index = 0
         for re_pat in self.re_level:
             index = re_pat[1]
             pattern = re.compile(re_pat[0])
-            res = pattern.match(line)
-            if res:
+            if res := pattern.match(line):
                 flag = True
                 match_content = res.group()
                 match_length = len(match_content)
@@ -317,12 +305,7 @@ class TreeFactory:
                 #line = line.replace(match_content, '')
 
                 break
-        # 是否匹配了模式，如果没有匹配，level返回-1
-        if flag :
-            level = index
-
-
-
+        level = index if flag else -1
         return level, line
 
     def preProcessSentence(self, line):
@@ -407,22 +390,19 @@ class TreeFactory:
     def removeReSection(self, line):
         # 先去掉成对的括号
         pattern = re.compile(self.re_replace_bracket)
-        res = pattern.findall(line)
-        if res:
+        if res := pattern.findall(line):
             for one_res in res:
                 line = line.replace(one_res, '')
 
         # 有的时候存在半括号情况
         pattern = re.compile(self.re_replace_bracket_semi)
-        res = pattern.findall(line)
-        if res:
+        if res := pattern.findall(line):
             for one_res in res:
                 line = line.replace(one_res, '')
 
         # 对于存在 表 3， 图3 之类的也不要
         pattern = re.compile(self.re_nouse_tag_graphtable)
-        res = pattern.findall(line)
-        if res:
+        if res := pattern.findall(line):
             line = u''
 
         if len(line) > 0:
@@ -435,8 +415,7 @@ class TreeFactory:
         # 对于存在百分比的行，不要
         if len(line) > 0:
             pattern = re.compile(self.re_nouse_tag_percent)
-            res = pattern.findall(line)
-            if res:
+            if res := pattern.findall(line):
                 line = u''
 
         return line
@@ -551,15 +530,11 @@ class TreeFactory:
         self.ngram.maxComputefreq = 10
         self.ngram.maxOutputfreq = 15
         self.ngram.inputfile = self.wordreader.output_filepath
-        self.ngram.outputfile = fileNames[0] +  '-ngram' + fileNames[1]
+        self.ngram.outputfile = f'{fileNames[0]}-ngram{fileNames[1]}'
         self.ngram.extractHotwords()
 
-        k_list = []
         f = open(self.ngram.outputfile)
-        for k in f:
-            k_list.append(k)
-
-        return k_list
+        return list(f)
 
 
 if __name__ == "__main__":

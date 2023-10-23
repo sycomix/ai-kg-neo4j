@@ -32,12 +32,8 @@ class CatalogItem:
         self.category_desc = desc
 
     def toString(self):
-        res_list = []
-        res_list.append(self.category_code)
-        res_list.append(self.category_name)
-        res = ' '.join(res_list)
-
-        return res
+        res_list = [self.category_code, self.category_name]
+        return ' '.join(res_list)
 
 class Catalog:
     """
@@ -75,14 +71,14 @@ class Catalog:
         # 定义一个question对象
 
         # self.excel_reader.column_scope_names = [u'题目内容', u'选项A', u'选项B', u'选项C', u'选项D', u'选项E', u'答案',u'试题编号',u'题型名称',u'试题类别',u'难度', u'标注知识点']
-        excel_reader.column_scope_names = {}
-        excel_reader.column_scope_names[u'专业大类'] = -1
-        excel_reader.column_scope_names[u'专业大类代码'] = -1
-        excel_reader.column_scope_names[u'专业类名称'] = -1
-        excel_reader.column_scope_names[u'专业类代码'] = -1
-        excel_reader.column_scope_names[u'专业名称'] = -1
-        excel_reader.column_scope_names[u'专业代码'] = -1
-
+        excel_reader.column_scope_names = {
+            '专业大类': -1,
+            '专业大类代码': -1,
+            '专业类名称': -1,
+            '专业类代码': -1,
+            '专业名称': -1,
+            '专业代码': -1,
+        }
         excel_content_rows = excel_reader.readFile()
 
         # 分析数据
@@ -114,14 +110,14 @@ class Catalog:
                 snd_name = level_snd_name
                 ci = CatalogItem()
                 snd_code_length = len(snd_code)
-                code = u'{}.{}'.format(fst_code, snd_code[fst_code_length:])
+                code = f'{fst_code}.{snd_code[fst_code_length:]}'
                 ci.initData(code, snd_name)
                 self.category_list.append(ci)
 
             ci = CatalogItem()
             trd_code = UnicodeConvertor.numToUnicode(level_trd_code)
             #code_length = len(snd_code)
-            code = u'{}.{}.{}'.format(fst_code, snd_code[fst_code_length:],trd_code[snd_code_length:])
+            code = f'{fst_code}.{snd_code[fst_code_length:]}.{trd_code[snd_code_length:]}'
             ci.initData(code, level_trd_name)
             self.category_list.append(ci)
 
@@ -140,14 +136,14 @@ class Catalog:
         # 定义一个question对象
 
         # self.excel_reader.column_scope_names = [u'题目内容', u'选项A', u'选项B', u'选项C', u'选项D', u'选项E', u'答案',u'试题编号',u'题型名称',u'试题类别',u'难度', u'标注知识点']
-        excel_reader.column_scope_names = {}
-        excel_reader.column_scope_names[u'大类'] = -1
-        excel_reader.column_scope_names[u'大类代码'] = -1
-        excel_reader.column_scope_names[u'专业类'] = -1
-        excel_reader.column_scope_names[u'专业类代码'] = -1
-        excel_reader.column_scope_names[u'专业'] = -1
-        excel_reader.column_scope_names[u'专业代码'] = -1
-
+        excel_reader.column_scope_names = {
+            '大类': -1,
+            '大类代码': -1,
+            '专业类': -1,
+            '专业类代码': -1,
+            '专业': -1,
+            '专业代码': -1,
+        }
         excel_content_rows = excel_reader.readFile()
 
         # 分析数据
@@ -177,14 +173,14 @@ class Catalog:
                 snd_name = level_snd_name
                 ci = CatalogItem()
                 snd_code_length = len(snd_code)
-                code = u'{}.{}'.format(fst_code, snd_code[fst_code_length:])
+                code = f'{fst_code}.{snd_code[fst_code_length:]}'
                 ci.initData(code, snd_name)
                 self.category_list.append(ci)
 
             ci = CatalogItem()
             trd_code = UnicodeConvertor.numToUnicode(level_trd_code)
             #code_length = len(snd_code)
-            code = u'{}.{}.{}'.format(fst_code, snd_code[fst_code_length:],trd_code[snd_code_length:])
+            code = f'{fst_code}.{snd_code[fst_code_length:]}.{trd_code[snd_code_length:]}'
             ci.initData(code, level_trd_name)
             self.category_list.append(ci)
 
@@ -203,14 +199,14 @@ class Catalog:
         # 定义一个question对象
 
         # self.excel_reader.column_scope_names = [u'题目内容', u'选项A', u'选项B', u'选项C', u'选项D', u'选项E', u'答案',u'试题编号',u'题型名称',u'试题类别',u'难度', u'标注知识点']
-        excel_reader.column_scope_names = {}
-        excel_reader.column_scope_names[u'大类名称'] = -1
-        excel_reader.column_scope_names[u'大类代码'] = -1
-        excel_reader.column_scope_names[u'中类名称'] = -1
-        excel_reader.column_scope_names[u'中类代码'] = -1
-        excel_reader.column_scope_names[u'小类名称'] = -1
-        excel_reader.column_scope_names[u'小类代码'] = -1
-
+        excel_reader.column_scope_names = {
+            '大类名称': -1,
+            '大类代码': -1,
+            '中类名称': -1,
+            '中类代码': -1,
+            '小类名称': -1,
+            '小类代码': -1,
+        }
         excel_content_rows = excel_reader.readFile()
 
         # 分析数据
@@ -258,12 +254,11 @@ class Catalog:
 
 
     def outputfile(self, filepath):
-        filepath = u'{}.txt'.format(filepath)
-        fout = open(filepath, 'w')
-        for ci in self.category_list:
-            fout.write(ci.toString())
-            fout.write('\n')
-        fout.close()
+        filepath = f'{filepath}.txt'
+        with open(filepath, 'w') as fout:
+            for ci in self.category_list:
+                fout.write(ci.toString())
+                fout.write('\n')
 
 if __name__ == "__main__":
     c = Catalog()
@@ -283,6 +278,4 @@ if __name__ == "__main__":
     c.sentence_processor = sen_pro
     c.readGangweiCatalog(filepath)
     c.outputfile(filepath)
-
-    pass
 

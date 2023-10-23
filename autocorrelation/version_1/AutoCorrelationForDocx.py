@@ -79,10 +79,10 @@ class AutoCorrelation:
 
         # 生成knowledge的目标文件名称
         fileNames = os.path.splitext(self.knowledgetargetfilepath)
-        self.knowledgetargetfilepath = fileNames[0] + '-knowledge.txt'
+        self.knowledgetargetfilepath = f'{fileNames[0]}-knowledge.txt'
 
         # 生成question的结果文件名称
-        self.questionresultfilepath = fileNames[0] + '-result.txt'
+        self.questionresultfilepath = f'{fileNames[0]}-result.txt'
 
     def extractKnowledgeFromSourceFile(self):
         """
@@ -139,11 +139,16 @@ class AutoCorrelation:
         #pass
 
         # 这里默认导出了数据文件
-        self.questionsourcefilepath = u'./../data/course-question-src/{}.xlsx'.format(coursename)
-        self.questiontargetfilepath = u'./../data/course-question-tgt/{}.xlsx'.format(coursename)
-        self.questionresultfilepath = u'./../data/knowledge-question-result/{}.txt'.format(coursename)
-        tt = os.path.abspath(self.questionsourcefilepath)
-        return  tt
+        self.questionsourcefilepath = (
+            f'./../data/course-question-src/{coursename}.xlsx'
+        )
+        self.questiontargetfilepath = (
+            f'./../data/course-question-tgt/{coursename}.xlsx'
+        )
+        self.questionresultfilepath = (
+            f'./../data/knowledge-question-result/{coursename}.txt'
+        )
+        return os.path.abspath(self.questionsourcefilepath)
 
     def associateFlow(self):
         """

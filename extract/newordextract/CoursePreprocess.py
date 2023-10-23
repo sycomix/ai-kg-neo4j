@@ -97,8 +97,8 @@ class CoursePreprocess:
 
         # 如果名称中包含中文的逗号，冒号，引号等特殊符号，需要人工处理
         if course.__contains__('，') or course.__contains__('：') or \
-            course.__contains__('、') or course.__contains__('——') or \
-            course.__contains__('《') or course.__contains__('“') or course.__contains__('【') :
+                course.__contains__('、') or course.__contains__('——') or \
+                course.__contains__('《') or course.__contains__('“') or course.__contains__('【') :
             if not self.coursenameErrdict.__contains__(course):
                 self.coursenameErrdict[course] = ''
             return ''
@@ -142,14 +142,20 @@ class CoursePreprocess:
             prech = ch
             prech2 = prech
         # 如果名称末尾有上、下的，可以去掉
-        if len(course_chlist) > 0 and \
-                (course_chlist[-1] == u'上' or course_chlist[-1] == u'下' or
-                         course_chlist[-1] == u'一' or course_chlist[-1] == u'二' or
-                         course_chlist[-1] == u'三' or course_chlist[-1] == u'四' or
-                         course_chlist[-1] == u'五' or course_chlist[-1] == u'六' or
-                         course_chlist[-1] == u'七' or course_chlist[-1] == u'八' or
-                         course_chlist[-1] == u'九' or course_chlist[-1] == u'十'
-                 ):
+        if course_chlist and course_chlist[-1] in [
+            u'上',
+            u'下',
+            u'一',
+            u'二',
+            u'三',
+            u'四',
+            u'五',
+            u'六',
+            u'七',
+            u'八',
+            u'九',
+            u'十',
+        ]:
             del course_chlist[-1]
         if len(engword) > 1:
             course_chlist.append(''.join(engword))
@@ -159,28 +165,19 @@ class CoursePreprocess:
 
     def outputerrname(self):
 
-        fout = open(self.outputerrfile, 'w')  # 以写得方式打开文件
-        fout.write('\n'.join(self.coursenameErrdict.keys()))  # 将分词好的结果写入到输出文件
-        fout.close()
+        with open(self.outputerrfile, 'w') as fout:
+            fout.write('\n'.join(self.coursenameErrdict.keys()))  # 将分词好的结果写入到输出文件
 
     def outputbasename(self):
 
-        fout = open(self.outputbasefile, 'w')  # 以写得方式打开文件
-        fout.write('\n'.join(self.coursenameAftdict.keys()))  # 将分词好的结果写入到输出文件
-        fout.close()
+        with open(self.outputbasefile, 'w') as fout:
+            fout.write('\n'.join(self.coursenameAftdict.keys()))  # 将分词好的结果写入到输出文件
 
     def output(self, courselist):
         index = 0
-        wordlst = []
-        for tup in courselist:
-
-            ns = '{0} {1} {2}'.format(tup[0],tup[1], tup[2])
-            wordlst.append(ns)
-
-
-        fout = open(self.outputfile, 'w')  # 以写得方式打开文件
-        fout.write('\n'.join(wordlst))  # 将分词好的结果写入到输出文件
-        fout.close()
+        wordlst = ['{0} {1} {2}'.format(tup[0],tup[1], tup[2]) for tup in courselist]
+        with open(self.outputfile, 'w') as fout:
+            fout.write('\n'.join(wordlst))  # 将分词好的结果写入到输出文件
 
 
 

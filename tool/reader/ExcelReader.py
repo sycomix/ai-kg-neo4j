@@ -133,17 +133,14 @@ class ExcelReader:
         elif self.column_scope_indexes and len(self.column_scope_indexes) > 0:
             use_index = True
 
-        column_length = sheet.ncols
         row_length = sheet.nrows
-        if (use_index == False and use_name == False) or row_length == 0:
-            result_scope = range(column_length)
-            return result_scope
-
+        if not use_index and not use_name or row_length == 0:
+            column_length = sheet.ncols
+            return range(column_length)
         result_scope = []
         first_row = sheet.row_values(0)
         result_index = 0
-        index = 0
-        for column_name in first_row:
+        for index, column_name in enumerate(first_row):
             if use_name and self.column_scope_names.__contains__(column_name):
                 self.column_scope_names[column_name]=result_index
                 result_index += 1
@@ -152,9 +149,6 @@ class ExcelReader:
                 #self.column_scope_names[column_name] = result_index
                 #result_index += 1
                 result_scope.append(index)
-            else:
-                pass
-            index += 1
         return result_scope
 
 
@@ -173,14 +167,9 @@ class ExcelReader:
             use_name = True
         elif self.sheet_scope_indexes and len(self.sheet_scope_indexes) > 0:
             use_index = True
-        else:
-            pass
-
         sheetlength = workbook.sheets().__len__()
-        if use_index == False and use_name == False:
-            result_scope = range(sheetlength)
-            return result_scope
-
+        if not use_index and not use_name:
+            return range(sheetlength)
         index = 0
         result_scope = []
         while index < sheetlength:
@@ -189,26 +178,17 @@ class ExcelReader:
                 result_scope.append(index)
             elif use_index and self.sheet_scope_indexes.__contains__(index):
                 result_scope.append(index)
-            else:
-                pass
-            index = index + 1
+            index += 1
         return result_scope
 
 
     def addOneRow(self, row, column_scope):
-        # 定义rows_list
-        row_item_list = []
-        for column_index in column_scope:
-            row_item_list.append(row[column_index])
-        return row_item_list
+        return [row[column_index] for column_index in column_scope]
 
 
     def isChinese(self, ch):
-        res = False
         s_unicode = UnicodeConvertor.stringToUnicode(ch)
-        if s_unicode >= u'\\u4e00' and s_unicode <= u'\\u9fa5':
-            res = True
-        return  res
+        return s_unicode >= u'\\u4e00' and s_unicode <= u'\\u9fa5'
     def getMd5(self,text):
 
         md5 = hashlib.md5(text.encode('utf-8')).hexdigest()

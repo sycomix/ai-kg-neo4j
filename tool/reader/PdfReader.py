@@ -52,7 +52,7 @@ class PdfReader:
         interpreter = PDFPageInterpreter(rsrcmgr, device)
         pdfStr = ''
         fileNames = os.path.splitext(filePath)
-        self.resfilepath = fileNames[0] + '.txt'
+        self.resfilepath = f'{fileNames[0]}.txt'
         with open(self.resfilepath, 'a') as f:
             # 循环遍历列表，每次处理一个page的内容
             for page in PDFPage.create_pages(doc):  # doc.get_pages() 获取page列表

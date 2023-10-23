@@ -33,47 +33,39 @@ class TextVector:
 
     def generate_train_file(self):
 
-        # 加载训练文本，训练文本有2部分组成，一部分是课件，一部分是试题
+        with open(self.course_path_info_list[0].vector_corpus_txt_filepath, 'w') as f_out:
+            for course_path_info in self.course_path_info_list:
 
-        # 检查语料文件是否已经生成, 如果已经生成，则不用再生成
-        #if  FilePath.fileExist(self.course_path_info.vector_corpus_txt_filepath):
-        #    return
-        # 打开结果文件
-        f_out = open(self.course_path_info_list[0].vector_corpus_txt_filepath, 'w')
-        for course_path_info in self.course_path_info_list:
+                # 第一步先加载课件
+                if course_path_info.courseware_source_txt_filepath:
+                    for c_line in self.sentence_reader.splitSentence(course_path_info.courseware_source_txt_filepath):
+                        f_out.write(' '.join(c_line))
+                        f_out.write('\n')
 
-            # 第一步先加载课件
-            if course_path_info.courseware_source_txt_filepath:
-                for c_line in self.sentence_reader.splitSentence(course_path_info.courseware_source_txt_filepath):
-                    f_out.write(' '.join(c_line))
+
+                        # 第二步加载试题
+                if course_path_info.examquestion_source_txt_filepath and FilePath.fileExist(course_path_info.examquestion_source_txt_filepath):
+                    question = open(course_path_info.examquestion_source_txt_filepath, 'r')
+                    ids_lines = question.readlines()
+                    for line in ids_lines:
+                        # line = "物权的分类:从设立的角度对他物权再做分类，可把其分为（）。,用益物权和担保物权"
+                        line = line.strip('\n')
+                        index = line.find('::')
+                        if index < 0:
+                            continue
+                        k = line[:index]
+                        q = line[index + 2:]
+                        q_words = self.sentence_reader.splitOneSentence(q)
+                        q_words = self.sentence_processor.enlargeVipWords(q_words, q)
+                        f_out.write(' '.join(q_words))
+                        f_out.write('\n')
+
+            # 第三步抽取的知识点也作为训练样本
+            if self.knowledge:
+                for k_key in self.knowledge:
+                    k_tup = self.knowledge[k_key]
+                    f_out.write(' '.join(k_tup[0]))
                     f_out.write('\n')
-
-
-            # 第二步加载试题
-            if course_path_info.examquestion_source_txt_filepath and FilePath.fileExist(course_path_info.examquestion_source_txt_filepath):
-                question = open(course_path_info.examquestion_source_txt_filepath, 'r')
-                ids_lines = question.readlines()
-                for line in ids_lines:
-                    # line = "物权的分类:从设立的角度对他物权再做分类，可把其分为（）。,用益物权和担保物权"
-                    line = line.strip('\n')
-                    index = line.find('::')
-                    if index < 0:
-                        continue
-                    k = line[0:index]
-                    q = line[index + 2:]
-                    q_words = self.sentence_reader.splitOneSentence(q)
-                    q_words = self.sentence_processor.enlargeVipWords(q_words, q)
-                    f_out.write(' '.join(q_words))
-                    f_out.write('\n')
-
-        # 第三步抽取的知识点也作为训练样本
-        if self.knowledge:
-            for k_key in self.knowledge:
-                k_tup = self.knowledge[k_key]
-                f_out.write(' '.join(k_tup[0]))
-                f_out.write('\n')
-
-        f_out.close()
 
     def train(self):
 
@@ -108,11 +100,10 @@ class TextVector:
 
     def output_dict(self, word_dict):
         filepath = u'./../data/course-knowledge-model/temp.dict'
-        fout = open(filepath, 'w')  # 以写得方式打开文件
-        for word in word_dict:
-            fout.writelines(word)  # 将分词好的结果写入到输出文件
-            fout.writelines('\n')
-        fout.close()
+        with open(filepath, 'w') as fout:
+            for word in word_dict:
+                fout.writelines(word)  # 将分词好的结果写入到输出文件
+                fout.writelines('\n')
 
     def readRegularKnowledgeList(self, knowledgefilepath):
         self.knowledge = {}

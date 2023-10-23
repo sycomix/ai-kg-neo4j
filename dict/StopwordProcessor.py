@@ -21,10 +21,9 @@ class StopwordProcessor:
 
     def writeFile(self):
         logging.info('start write dictionary file.')
-        fin = open('./../data/stopwords-pre-v20180817.txt', 'w+')
-        fin.writelines(self.wordlist)
-        fin.flush()
-        fin.close()
+        with open('./../data/stopwords-pre-v20180817.txt', 'w+') as fin:
+            fin.writelines(self.wordlist)
+            fin.flush()
 
     def readFile(self):
 

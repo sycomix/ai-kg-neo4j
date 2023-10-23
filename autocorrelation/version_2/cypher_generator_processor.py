@@ -42,6 +42,7 @@ class CypherGeneratorProcessor:
         self.cypherlist.append("CREATE CONSTRAINT ON (c:Knowledge) ASSERT c.code IS UNIQUE;")
         self.cypherlist.append("CREATE CONSTRAINT ON (c:Question) ASSERT c.code IS UNIQUE;")
         self.cypherlist.append("create index on:Question(databaseid);")
+        rns = "MERGE (k)-[:CHECK]->(q);"
         for item in qk_list:
             coursename = item['coursename']
             k_list = item['knowledge']
@@ -54,6 +55,4 @@ class CypherGeneratorProcessor:
                 qns = "MERGE (q:Question {{code:'{0}'}}) on create set q.type='{1}', q.category='{2}',q.diff='{3}',q.coursename='{4}',q.courseid='{5}', q.databaseid='{6}', q.schoolname='{7}'".format(
                     item['questionid'], item['questiontype'], item['questioncate'], item['questiondiff'],
                     item['coursename'], item['courseid'], item['databaseid'], item['schoolname'])
-                rns = "MERGE (k)-[:CHECK]->(q);"
-                com = kns + '\r\n' + qns + '\r\n' + rns + '\r\n'
-                self.cypherlist.append(com)
+                self.cypherlist.append(kns + '\r\n' + qns + '\r\n' + rns + '\r\n')

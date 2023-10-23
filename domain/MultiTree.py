@@ -62,17 +62,17 @@ class MultiTree:
         n_node = TreeNode()
         n_node.name = name
         size = len(parentnode.children)
-        n_node.code = parentnode.code + '.' + str(size + 1)
+        n_node.code = f'{parentnode.code}.{str(size + 1)}'
         n_node.level = level
 
         return n_node
 
     def findNode(self, nodename):
-        res = None
-        if self.nodedict.__contains__(nodename):
-            res = self.nodedict[nodename]
-
-        return res
+        return (
+            self.nodedict[nodename]
+            if self.nodedict.__contains__(nodename)
+            else None
+        )
 
     def findParentNode(self, curnode, nlevel):
         # 根据当前节点，往上面找，找到层级和nlevel相同的上级节点

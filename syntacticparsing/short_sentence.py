@@ -46,18 +46,14 @@ class ShortSentenceParsing:
             #res = self.splitor.parseDependency(sen)
             #print res
             for subsen in sen:
-                if not (isinstance(subsen, str) or isinstance(subsen, unicode)):
+                if not (isinstance(subsen, (str, unicode))):
                     continue
                 res = self.splitor.extractKeyword(subsen, 3)
                 if len(res) == 0:
                     continue
 
-                vip_word_list = []
-                for word in res:
-                    if len(word) < 2:
-                        continue
-                    vip_word_list.append(word)
-                if len(vip_word_list) == 0:
+                vip_word_list = [word for word in res if len(word) >= 2]
+                if not vip_word_list:
                     continue
 
                 #vip_word_list.reverse()
@@ -73,50 +69,35 @@ class ShortSentenceParsing:
         self.excel_reader.filepath = filepath
         self.excel_reader.sheet_scope_indexes = [1]
         self.excel_reader.column_scope_names = [u'发帖内容', u'回帖内容']
-        excel_content_rows = self.excel_reader.readFile()
-
-        return excel_content_rows
+        return self.excel_reader.readFile()
 
     def outputFile1(self, filepath):
-        # 写入文件
-        fout = open(filepath, 'w')
-        for word_tup in self.core_words_list:
-            line = '{}: {}'.format(word_tup[0], ' '.join(word_tup[1]))
-            fout.write(line)
-            fout.write('\n')
-
-        fout.close()
+        with open(filepath, 'w') as fout:
+            for word_tup in self.core_words_list:
+                line = f"{word_tup[0]}: {' '.join(word_tup[1])}"
+                fout.write(line)
+                fout.write('\n')
 
     def outputFile2(self, filepath):
-        # 写入文件
-        fout = open(filepath, 'w')
-        for word_tup in self.core_words_list:
-            line = ' '.join(word_tup[1])
-            fout.write(line)
-            fout.write('\n')
-
-        fout.close()
+        with open(filepath, 'w') as fout:
+            for word_tup in self.core_words_list:
+                line = ' '.join(word_tup[1])
+                fout.write(line)
+                fout.write('\n')
 
     def outputFile(self, filepath):
         # 统计一下关键词
         word_dict = {}
         for word in self.core_words_list:
-            if word_dict.__contains__(word):
-                word_dict[word] = word_dict[word] + 1
-            else:
-                word_dict[word] = 1
-
+            word_dict[word] = word_dict[word] + 1 if word_dict.__contains__(word) else 1
         # 排序
         sort_list = sorted(word_dict.items(),lambda x, y:cmp(x[1], y[1]), reverse=True)
 
-        # 写入文件
-        fout = open(filepath, 'w')
-        for word in sort_list:
-            line = '{}: {}'.format(word[0], word[1])
-            fout.write(line)
-            fout.write('\n')
-
-        fout.close()
+        with open(filepath, 'w') as fout:
+            for word in sort_list:
+                line = f'{word[0]}: {word[1]}'
+                fout.write(line)
+                fout.write('\n')
 
 
 if __name__ == "__main__":

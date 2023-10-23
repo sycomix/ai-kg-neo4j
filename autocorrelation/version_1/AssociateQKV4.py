@@ -171,9 +171,7 @@ class AssociateQKByKeyword:
                 count = record['count']
                 question_ext[word] = count
 
-                if maxcount < count:
-                    maxcount = count
-
+                maxcount = max(maxcount, count)
                 break
 
         qklist = []
@@ -190,14 +188,7 @@ class AssociateQKByKeyword:
             tup = (k, weight,50.0)
             qklist.append(tup)
 
-        # sort
-        sortlist = sorted(qklist, cmp=lambda x, y: cmp(y[1], x[1]))
-
-        #reslist = []
-        #for item in sortlist:
-        #    reslist.append(item)
-
-        return sortlist
+        return sorted(qklist, cmp=lambda x, y: cmp(y[1], x[1]))
 
     def getAssociateQK_Keyword(self, candidate_qklist_org, candidate_qklist_ext):
         associatelist = []
@@ -218,12 +209,7 @@ class AssociateQKByKeyword:
 
         # 如果没有交叉，则取最长的
         reslist = None
-        if len(associatelist) > 0:
-            reslist = associatelist
-        else:
-            reslist = maxassociatelist
-            # print
-        return  reslist
+        return associatelist if associatelist else maxassociatelist
     def getAssociateQK_PartWordContains(self, question, q):
         qklist = []
         for k in self.knowledge.keys():
@@ -247,9 +233,7 @@ class AssociateQKByKeyword:
                 tup = (k, pointcount, 65.0)
                 qklist.append(tup)
 
-        # sort
-        sortlist = sorted(qklist, cmp=lambda x,y:cmp(y[1], x[1]))
-        return sortlist
+        return sorted(qklist, cmp=lambda x,y:cmp(y[1], x[1]))
 
     def getAssociateQK_PartCharacterContains(self, question):
         qklist = []
@@ -270,9 +254,7 @@ class AssociateQKByKeyword:
                 tup = (k, pointcount, 60.0)
                 qklist.append(tup)
 
-        # sort
-        sortlist = sorted(qklist, cmp=lambda x,y:cmp(y[1], x[1]))
-        return sortlist
+        return sorted(qklist, cmp=lambda x,y:cmp(y[1], x[1]))
 
     def getAssociateQK_NoContains(self, question):
         qklist = {}
@@ -295,8 +277,8 @@ class AssociateQKByKeyword:
         q = str(q)
         q_length = len(q)
         for k in self.knowledge.keys():
-            k_q_c = '“' + k +'”'
-            k_q_e = '"' + k +'"'
+            k_q_c = f'“{k}”'
+            k_q_e = f'"{k}"'
             k_length = len(k)
             if q.__contains__(k_q_c):
                 index = q.find(k)
@@ -331,9 +313,7 @@ class AssociateQKByKeyword:
             elif max_score > item[1]:
                 break
 
-        # 去重
-        reslist = self.resultFilter(reslist)
-        return reslist
+        return self.resultFilter(reslist)
 
     def resultFilter(self, reslist_orig):
         reslist = []
@@ -354,9 +334,8 @@ class AssociateQKByKeyword:
         return reslist
 
     def outputResult(self):
-        fout = open(self.outputfilepath, 'w')  # 以写得方式打开文件
-        fout.writelines(self.outputcontentlist)  # 将分词好的结果写入到输出文件
-        fout.close()
+        with open(self.outputfilepath, 'w') as fout:
+            fout.writelines(self.outputcontentlist)  # 将分词好的结果写入到输出文件
 
     def executeAssociate(self):
         self.readRegularKnowledgeList()

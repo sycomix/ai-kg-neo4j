@@ -28,7 +28,7 @@ class KnowledgeHandler(tornado.web.RequestHandler):
         queryparam = self.request.body
         # 打印信息
         print('==========>')
-        print("[INFO]开始处理本次请求:" + str(queryparam))
+        print(f"[INFO]开始处理本次请求:{str(queryparam)}")
 
         # 处理句子
         #result_list = ChartPusher.start(image_ids)
@@ -40,7 +40,7 @@ class KnowledgeHandler(tornado.web.RequestHandler):
         self.set_header("Access-Control-Allow-Headers", "x-requested-with")
         self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
         self.write(res)
-        print("[INFO]本次耗时" + str((time.time() - start)*1000) + "ms")
+        print(f"[INFO]本次耗时{str((time.time() - start) * 1000)}ms")
 
         return
 
@@ -57,7 +57,7 @@ class QuestionHandler(tornado.web.RequestHandler):
         queryparam = self.request.body
         # 打印信息
         print('==========>')
-        print("[INFO]开始处理本次请求:" + str(queryparam))
+        print(f"[INFO]开始处理本次请求:{str(queryparam)}")
 
         # 处理句子
         #result_list = ChartPusher.start(image_ids)
@@ -69,7 +69,7 @@ class QuestionHandler(tornado.web.RequestHandler):
         self.set_header("Access-Control-Allow-Headers", "x-requested-with")
         self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
         self.write(res)
-        print("[INFO]本次耗时" + str((time.time() - start)*1000) + "ms")
+        print(f"[INFO]本次耗时{str((time.time() - start) * 1000)}ms")
 
         return
 
@@ -86,7 +86,7 @@ class BankHandler(tornado.web.RequestHandler):
         queryparam = self.request.body
         # 打印信息
         print('==========>')
-        print("[INFO]开始处理本次请求:" + str(queryparam))
+        print(f"[INFO]开始处理本次请求:{str(queryparam)}")
 
         # 处理句子
         #result_list = ChartPusher.start(image_ids)
@@ -98,7 +98,7 @@ class BankHandler(tornado.web.RequestHandler):
         self.set_header("Access-Control-Allow-Headers", "x-requested-with")
         self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
         self.write(res)
-        print("[INFO]本次耗时" + str((time.time() - start)*1000) + "ms")
+        print(f"[INFO]本次耗时{str((time.time() - start) * 1000)}ms")
 
         return
 

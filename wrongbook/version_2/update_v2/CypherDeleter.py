@@ -75,13 +75,14 @@ class Statistics:
         :param count_list: 
         :return: 
         """
-        distribution_dict = {}
-        distribution_dict['0'] = 0
-        distribution_dict['1-2'] = 0
-        distribution_dict['3-5'] = 0
-        distribution_dict['6-10'] = 0
-        distribution_dict['11-20'] = 0
-        distribution_dict['21+'] = 0
+        distribution_dict = {
+            '0': 0,
+            '1-2': 0,
+            '3-5': 0,
+            '6-10': 0,
+            '11-20': 0,
+            '21+': 0,
+        }
         for count in count_list:
             if count == 0:
                 distribution_dict['0'] += 1
@@ -127,12 +128,8 @@ class Statistics:
         :param exam_id_list: 
         :return: 
         """
-        cypher_list = []
         template = "match (rq)-[:SAME]->(rqg)<-[:CHECK]-(k)-[:CHECK]->(res) where rq.code='{}' return count(res)"
-        for exam_id in exam_id_list:
-            cypher_list.append(template.format(exam_id))
-
-        return cypher_list
+        return [template.format(exam_id) for exam_id in exam_id_list]
 
     def getExamIdList(self, filepath):
         """
@@ -140,16 +137,13 @@ class Statistics:
         :param filepath: 
         :return: 
         """
-        exam_id_list = []
         f_in = open(filepath, 'r')
-        for line in f_in:
-            exam_id_list.append(line.strip('\n'))
-        return exam_id_list
+        return [line.strip('\n') for line in f_in]
 
 
 if __name__ == "__main__":
     s = Statistics()
     # filepath = u'20181122-200plus'
     filepath = u'20181217-800plus-combine'
-    rootpath = u'./../../../data/course-knowledge-machine/{}/processed_exam_question.txt'.format(filepath)
+    rootpath = f'./../../../data/course-knowledge-machine/{filepath}/processed_exam_question.txt'
     s.execute(rootpath)

@@ -56,11 +56,7 @@ class SenPreprocess:
         self.re_def_5 = ur'(“[^“”]+?”)'
         self.re_def_strip = u'也称之为所谓,.;，：；、。— '
         self.re_def_strip_vip = u'《》“” '
-        self.re_define = []
-        self.re_define.append(self.re_def_1)
-        self.re_define.append(self.re_def_2)
-        self.re_define.append(self.re_def_3)
-        self.re_define.append(self.re_def_4)
+        self.re_define = [self.re_def_1, self.re_def_2, self.re_def_3, self.re_def_4]
 
     def __init_re_date(self):
         # 定义属于时间格式的，去掉不要
@@ -94,9 +90,7 @@ class SenPreprocess:
         self.re_currency_1 = ur'(\d+[\s万]*元)'
         self.re_currency_2 = ur'(\d+[\s万]*股)'
 
-        self.re_currency = []
-        self.re_currency.append(self.re_currency_1)
-        self.re_currency.append(self.re_currency_2)
+        self.re_currency = [self.re_currency_1, self.re_currency_2]
 
     def __init_re_level(self):
         # 对于表达层次关系的标签，比如：第一章，第五节，一、（十二），1.2，（7）等等
@@ -116,18 +110,19 @@ class SenPreprocess:
         self.re_num_9 = ur'([①②③④⑤⑥⑦⑧⑨⑩])'
 
 
-        self.re_level = []
-        self.re_level.append((self.re_num_1, 1))
-        self.re_level.append((self.re_num_1_1, 1))
-        self.re_level.append((self.re_num_2, 2))
-        self.re_level.append((self.re_num_2_1, 2))
-        self.re_level.append((self.re_num_3, 3))
-        self.re_level.append((self.re_num_4, 4))
-        self.re_level.append((self.re_num_6, 6))
-        self.re_level.append((self.re_num_5, 5))
-        self.re_level.append((self.re_num_7, 7))
-        self.re_level.append((self.re_num_8, 8))
-        self.re_level.append((self.re_num_9, 9))
+        self.re_level = [
+            (self.re_num_1, 1),
+            (self.re_num_1_1, 1),
+            (self.re_num_2, 2),
+            (self.re_num_2_1, 2),
+            (self.re_num_3, 3),
+            (self.re_num_4, 4),
+            (self.re_num_6, 6),
+            (self.re_num_5, 5),
+            (self.re_num_7, 7),
+            (self.re_num_8, 8),
+            (self.re_num_9, 9),
+        ]
 
 
     def preprocess_content_rows(self, content_rows):
@@ -181,10 +176,8 @@ class SenPreprocess:
 
             for word_unstrip in vip_words:
                 word = word_unstrip.strip(self.re_def_strip_vip)
-                word = ''.join(word.split())
-                if len(word) == 0:
-                    continue
-                result.append(word)
+                if word := ''.join(word.split()):
+                    result.append(word)
         return result
 
     def enlargeVipWords(self, origin_words, q):
@@ -192,8 +185,7 @@ class SenPreprocess:
         if isinstance(q, str):
             q = q.decode('utf-8')
         vip_words = self.find_VIP_words_by_pattern(q)
-        all_words = origin_words + vip_words
-        return all_words
+        return origin_words + vip_words
 
 
 
@@ -223,8 +215,7 @@ class SenPreprocess:
         # 对于重点强调的是时间，则去掉时间内容
         for re_pat in self.re_date:
             pattern = re.compile(re_pat)
-            res = pattern.findall(sen)
-            if res:
+            if res := pattern.findall(sen):
                 for one_res in res:
                     if isinstance(one_res, unicode):
                         sen = sen.replace(one_res, u'')
@@ -274,8 +265,7 @@ class SenPreprocess:
 
         for re_pat in self.re_level:
             pattern = re.compile(re_pat[0])
-            res = pattern.match(sen)
-            if res:
+            if res := pattern.match(sen):
                 flag = True
                 match_content = res.group()
                 match_length = len(match_content)
@@ -286,9 +276,7 @@ class SenPreprocess:
             for re_pat in [self.re_num_4, self.re_num_5, self.re_num_7, self.re_num_8, self.re_num_9]:
                 #index = index + 1
                 pattern = re.compile(re_pat)
-                # 对于suf_sen再尝试进行分隔
-                grps = pattern.findall(suf_sen)
-                if grps:
+                if grps := pattern.findall(suf_sen):
                     for gp in grps:
                         suf_sen = suf_sen.replace(gp, u';')
 
@@ -438,20 +426,16 @@ class SenPreprocess:
                 level_code_lst.append(u'.')
 
         level_code_lst.append(num_code)
-        code = ''.join(level_code_lst) + u'、'
-
-        return code
+        return ''.join(level_code_lst) + u'、'
     def judgeLevel(self, line):
         flag = False
-        level = -1
         index = 0
         depth = 0
 
         for re_pat in self.re_level:
             index = re_pat[1]
             pattern = re.compile(re_pat[0])
-            res = pattern.match(line)
-            if res:
+            if res := pattern.match(line):
                 flag = True
                 match_content = res.group()
                 dotsplit = match_content.split(u'.')
@@ -461,10 +445,7 @@ class SenPreprocess:
                 #line = line.replace(match_content, '')
 
                 break
-        # 是否匹配了模式，如果没有匹配，level返回-1
-        if flag :
-            level = index
-
+        level = index if flag else -1
         return level + depth, line
 
 if __name__ == "__main__":

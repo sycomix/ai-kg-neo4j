@@ -23,9 +23,13 @@ def generateKnowledgeCypher(course_path_info):
     # 检查文件
     if not FilePath.fileExist(course_path_info.courseware_knowledge_txt_filepath):
         return cypherlist
-    cypherlist.append("CREATE CONSTRAINT ON (c:Knowledge) ASSERT c.code IS UNIQUE;")
-    cypherlist.append("CREATE CONSTRAINT ON (c:Question) ASSERT c.code IS UNIQUE;")
-    cypherlist.append("create index on:Question(databaseid);")
+    cypherlist.extend(
+        (
+            "CREATE CONSTRAINT ON (c:Knowledge) ASSERT c.code IS UNIQUE;",
+            "CREATE CONSTRAINT ON (c:Question) ASSERT c.code IS UNIQUE;",
+            "create index on:Question(databaseid);",
+        )
+    )
     # 读取知识点文件,到一个字典文件中
     # 知识点内部的关系，暂时仅建立父子之间的直接关系
     k_dict = {}
@@ -51,7 +55,7 @@ def generateKnowledgeCypher(course_path_info):
         k_ns_parent = "MERGE (k_parent:Knowledge {{code:'{0}'}}) on create set k_parent.name='{1}'".format(k_code_parent, k_name_parent)
         k_ns_parent_child = "MERGE (k_parent)-[:CHILD]->(k_child);"
 
-        com = k_ns_child + ' ' + k_ns_parent + ' ' + k_ns_parent_child
+        com = f'{k_ns_child} {k_ns_parent} {k_ns_parent_child}'
         cypherlist.append(com)
 
     return cypherlist
@@ -71,9 +75,13 @@ def generateExamAndKnowledgeCypher(course, exam_question_group_dict):
     if len(exam_question_group_dict.keys()) == 0:
         return cypherlist
 
-    cypherlist.append("CREATE CONSTRAINT ON (c:Knowledge) ASSERT c.code IS UNIQUE;")
-    cypherlist.append("CREATE CONSTRAINT ON (c:Question) ASSERT c.code IS UNIQUE;")
-    cypherlist.append("create index on:Question(databaseid);")
+    cypherlist.extend(
+        (
+            "CREATE CONSTRAINT ON (c:Knowledge) ASSERT c.code IS UNIQUE;",
+            "CREATE CONSTRAINT ON (c:Question) ASSERT c.code IS UNIQUE;",
+            "create index on:Question(databaseid);",
+        )
+    )
     for item, subitem_list in exam_question_group_dict.items():
         exam_content = item.content
         if exam_content.startswith(u'<img'):
@@ -91,7 +99,7 @@ def generateExamAndKnowledgeCypher(course, exam_question_group_dict):
 
             rns = "MERGE (sq)-[:SAME]->(q);"
 
-            com = qns + ' ' + subqns + ' ' + rns
+            com = f'{qns} {subqns} {rns}'
             cypherlist.append(com)
 
         # 知识点与试题的关联
@@ -116,6 +124,6 @@ def generateExamAndKnowledgeCypher(course, exam_question_group_dict):
                 item.code, item.type, item.category, item.diff,
                 course.NewCourseName, course.CourseCode, course.ItemBankID, course.SchoolCode)
             rns = "MERGE (k)-[:CHECK]->(q);"
-            com = kns + ' ' + qns + ' ' + rns
+            com = f'{kns} {qns} {rns}'
             cypherlist.append(com)
     return cypherlist

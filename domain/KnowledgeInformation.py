@@ -45,13 +45,13 @@ class Knowledge:
         #self.poscons = properties[3]
 
     def toDict(self):
-        k_dict = {}
-        k_dict['code'] = self.code
-        k_dict['name'] = self.name
-        k_dict['belongs'] = ''
-        k_dict['precons'] = ''
-        k_dict['poscons'] = ''
-
+        k_dict = {
+            'code': self.code,
+            'name': self.name,
+            'belongs': '',
+            'precons': '',
+            'poscons': '',
+        }
         sec_list = self.code.split('.')
         if len(sec_list) > 2:
             k_dict['course'] = '.'.join(sec_list[:3])

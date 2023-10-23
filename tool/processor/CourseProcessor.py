@@ -59,35 +59,28 @@ class CourseProcessor:
                 course = course_code_dict.get(course_id)
                 course_name = course.NewCourseName
                 course_name = str(course_name).replace(u'（', u'(')
-                course_name = str(course_name).replace(u'）', u')')
+                course_name = course_name.replace(u'）', u')')
                 result_dict[course.SchoolName+course_name] = course
         return result_dict
 
 
     def outputfile(self, filepath, result_list):
-        # 输出文档
-        fout = open(filepath, 'w')  # 以写得方式打开文件
-        fout.write('\n'.join(result_list))
-
-        fout.close()
+        with open(filepath, 'w') as fout:
+            fout.write('\n'.join(result_list))
 
     def getNeedCourseList(self, filepath):
         self.excel_reader.filepath = filepath
         self.excel_reader.sheet_scope_indexes = [0]
         self.excel_reader.column_scope_indexes = [1]
         course_id_list = self.excel_reader.readFile()
-        result_list = self.getCourseInformationList(course_id_list)
-
-        return result_list
+        return self.getCourseInformationList(course_id_list)
 
     def getNeedCourseDict(self, filepath):
         self.excel_reader.filepath = filepath
         self.excel_reader.sheet_scope_indexes = [0]
         self.excel_reader.column_scope_indexes = [1]
         course_id_list = self.excel_reader.readFile()
-        result_dict = self.getCourseInformationDict(course_id_list)
-
-        return result_dict
+        return self.getCourseInformationDict(course_id_list)
 
 if __name__ == "__main__":
     cp = CourseProcessor()

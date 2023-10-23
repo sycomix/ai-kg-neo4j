@@ -29,26 +29,23 @@ class SentenceReader:
         self.wordlist = []
 
         self.stopwords = {}
-        fstop = open(self.__curpath+'/../../data/dictionary/stopwords-pre-v20180817.txt', 'r')
-        for eachWord in fstop:
-            self.stopwords[eachWord.strip().decode('utf-8', 'ignore')] = eachWord.strip().decode('utf-8', 'ignore')
-        fstop.close()
+        with open(f'{self.__curpath}/../../data/dictionary/stopwords-pre-v20180817.txt', 'r') as fstop:
+            for eachWord in fstop:
+                self.stopwords[eachWord.strip().decode('utf-8', 'ignore')] = eachWord.strip().decode('utf-8', 'ignore')
 
     def getSentence(self, filepath):
-        fin = open(filepath, 'r')  # 以读的方式打开文件
-        for eachLine in fin:
-            line = eachLine.strip().decode('utf-8', 'ignore')  # 去除每行首尾可能出现的空格，并转为Unicode进行处理
-            #line1 = re.sub("[0-9\s+\.\!\/_,$%^*()?;；:-【】+\"\']+|[+——！，;:。？、~@#￥%……&*（）]+".decode("utf8"),
-            #               ",".decode("utf8"), line)
-            line1 = re.sub("[0-9\s+\.\!\/_,$%^*()?;；:-【】+\"\']+|[+——！，;:：“”。？~@#￥%……&*（）]+".decode("utf8"),
-                           ",".decode("utf8"), line)
-            sublinearray = line1.split(',')
-            for subline in sublinearray:
-                if subline.strip() == '':
-                    continue
-                yield subline
-
-        fin.close()
+        with open(filepath, 'r') as fin:
+            for eachLine in fin:
+                line = eachLine.strip().decode('utf-8', 'ignore')  # 去除每行首尾可能出现的空格，并转为Unicode进行处理
+                #line1 = re.sub("[0-9\s+\.\!\/_,$%^*()?;；:-【】+\"\']+|[+——！，;:。？、~@#￥%……&*（）]+".decode("utf8"),
+                #               ",".decode("utf8"), line)
+                line1 = re.sub("[0-9\s+\.\!\/_,$%^*()?;；:-【】+\"\']+|[+——！，;:：“”。？~@#￥%……&*（）]+".decode("utf8"),
+                               ",".decode("utf8"), line)
+                sublinearray = line1.split(',')
+                for subline in sublinearray:
+                    if subline.strip() == '':
+                        continue
+                    yield subline
     def splitOneSentence(self, sentence):
         res_list = []
         wordList = self.hanlpsplitor.split1list(sentence)
@@ -93,29 +90,24 @@ class SentenceReader:
 
 
     def splitSentence(self,inputFile):
-        # 把停用词做成字典
+        with open(inputFile, 'r') as fin:
+            #jieba.enable_parallel(4)  # 并行分词
+            #jieba.enable_parallel()
 
-        fin = open(inputFile, 'r')  # 以读的方式打开文件
+            for eachLine in fin:
+                res_list = []
+                wordList = self.hanlpsplitor.split1list(eachLine)
+                for word in wordList:
+                    if self.stopwords.__contains__(word):
+                        continue
 
-        #jieba.enable_parallel(4)  # 并行分词
-        #jieba.enable_parallel()
+                    word = word.strip()
+                    if len(word) == 0:
+                        continue
 
-        for eachLine in fin:
-            res_list = []
-            wordList = self.hanlpsplitor.split1list(eachLine)
-            for word in wordList:
-                if self.stopwords.__contains__(word):
-                    continue
+                    res_list.append(word)
 
-                word = word.strip()
-                if len(word) == 0:
-                    continue
-
-                res_list.append(word)
-
-            yield res_list
-
-        fin.close()
+                yield res_list
         # fout = open('./../data/words-jieba-plit.txt', 'w')  # 以写得方式打开文件
         # fout.write('\n'.join(self.jiebasplitor.wordposlist))  # 将分词好的结果写入到输出文件
         # fout.close()

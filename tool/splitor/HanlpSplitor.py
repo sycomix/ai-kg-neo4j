@@ -22,22 +22,17 @@ class HanlpSplitor:
 
         # 把停用词做成字典
         self.stopwords = {}
-        fstop = open(self.__curpath+'/../../data/dictionary/stopwords-pre-v20180817.txt', 'r')
-        for eachWord in fstop:
-            self.stopwords[eachWord.strip().decode('utf-8', 'ignore')] = eachWord.strip().decode('utf-8', 'ignore')
-        fstop.close()
+        with open(f'{self.__curpath}/../../data/dictionary/stopwords-pre-v20180817.txt', 'r') as fstop:
+            for eachWord in fstop:
+                self.stopwords[eachWord.strip().decode('utf-8', 'ignore')] = eachWord.strip().decode('utf-8', 'ignore')
 
     def pinyin(self, sentence):
         pinyinlist = HanLP.convertToPinyinList(sentence)
-        res = []
-        for pinyin in pinyinlist:
-            res.append(str(pinyin))
-
+        res = [str(pinyin) for pinyin in pinyinlist]
         return ''.join(res)
 
     def simplechinese(self, sentence):
-        simple = HanLP.convertToSimplifiedChinese(sentence)
-        return simple
+        return HanLP.convertToSimplifiedChinese(sentence)
 
     def split_origin(self,sentence):
         line = sentence.strip().decode('utf-8', 'ignore')  # 去除每行首尾可能出现的空格，并转为Unicode进行处理
@@ -46,11 +41,7 @@ class HanlpSplitor:
         # wordList = list(jieba.cut(line1))  # 用结巴分词，对每行内容进行分词
         wordList = HanLP.segment(line1)
 
-        resultlist = []
-        for w in wordList:
-            resultlist.append(w.word)
-
-        return resultlist
+        return [w.word for w in wordList]
 
 
     def split_test(self, sentence):
@@ -61,7 +52,7 @@ class HanlpSplitor:
 
         print(HanLP.segment('你好，欢迎在Python中调用HanLP的API'))
         for term in HanLP.segment('下雨天地面积水'):
-            print('{}\t{}'.format(term.word, term.nature))  # 获取单词与词性
+            print(f'{term.word}\t{term.nature}')
         testCases = [
             "商品和服务",
             "结婚的和尚未结婚的确实在干扰分词啊",
@@ -73,9 +64,9 @@ class HanlpSplitor:
         for sentence in testCases: print(HanLP.segment(sentence))
         # 关键词提取
         document = "水利部水资源司司长陈明忠9月29日在国务院新闻办举行的新闻发布会上透露，" \
-                   "根据刚刚完成了水资源管理制度的考核，有部分省接近了红线的指标，" \
-                   "有部分省超过红线的指标。对一些超过红线的地方，陈明忠表示，对一些取用水项目进行区域的限批，" \
-                   "严格地进行水资源论证和取水许可的批准。"
+                       "根据刚刚完成了水资源管理制度的考核，有部分省接近了红线的指标，" \
+                       "有部分省超过红线的指标。对一些超过红线的地方，陈明忠表示，对一些取用水项目进行区域的限批，" \
+                       "严格地进行水资源论证和取水许可的批准。"
         print(HanLP.extractKeyword(document, 2))
         # 自动摘要
         print(HanLP.extractSummary(document, 3))
@@ -168,19 +159,17 @@ class HanlpSplitor:
             if self.isFormWord(nature):
                 continue
 
-            wordpos =  w.word + '   ' + nature
+            wordpos = f'{w.word}   {nature}'
             self.wordposlist.append(wordpos)
 
-            if nature == preflag:
-                poslist.append(w.word)
-            else:
+            if nature != preflag:
                 if len(poslist) > 0:
                     self.wordnetlist.append(poslist)
                     poslist = []
 
-                poslist.append(w.word)
                 preflag = nature
 
+            poslist.append(w.word)
         if len(poslist) > 0:
             self.wordnetlist.append(poslist)
 
@@ -214,13 +203,7 @@ class HanlpSplitor:
         :return: 
         """
         res = HanLP.extractKeyword(sent, num)
-        res_list = []
-        for word in res:
-            if self.stopwords.__contains__(word):
-                continue
-            else:
-                res_list.append(word)
-        return res_list
+        return [word for word in res if not self.stopwords.__contains__(word)]
 
 if __name__ == "__main__":
     sr = HanlpSplitor()

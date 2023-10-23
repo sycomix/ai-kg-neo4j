@@ -89,15 +89,12 @@ class ExtractFromDocx:
         :return: 
         """
         targetfilepath = u'./../data/all.txt'
-        fout = open(targetfilepath, 'w')
-        for filepath in self.targetfile_list:
-            ftemp = open(filepath, 'r')
-            fout.write('\n')
-            for line in ftemp:
-                fout.write(line)
-            ftemp.close()
-
-        fout.close()
+        with open(targetfilepath, 'w') as fout:
+            for filepath in self.targetfile_list:
+                with open(filepath, 'r') as ftemp:
+                    fout.write('\n')
+                    for line in ftemp:
+                        fout.write(line)
 
 if __name__ == "__main__":
     sr = ExtractFromDocx()

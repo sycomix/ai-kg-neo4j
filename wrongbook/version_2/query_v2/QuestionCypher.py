@@ -134,20 +134,8 @@ class QuestionCypher(BaseCypher):
         :param jsondata: 
         :return: False, True
         """
-        flag = True
-
         if not jsondata.__contains__('QuestionId'):
-            flag = False
             self.resp.setResult(self.result, 0, 'questionId not cantains')
-            return flag
-        # if not jsondata.__contains__('ItemBankId'):
-        #     flag = False
-        #     self.resp.setResult(self.result, 0, 'itemBankId not cantains')
-        #     return flag
-        #if not jsondata.__contains__('Count'):
-        #    flag = False
-        #    self.resp.setResult(self.result, 0, 'count not cantains')
-        #    return flag
-
-        return flag
+            return False
+        return True
 

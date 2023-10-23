@@ -14,11 +14,8 @@ PATTERN = ur'<li>本站数据：(.*?)</li>'
 
 
 def query_api(url):
-    data = ''
     r = requests.get(url)
-    if r.status_code == 200:
-        data = r.content
-    return data
+    return r.content if r.status_code == 200 else ''
 
 
 def parse_ip138(html):

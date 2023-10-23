@@ -123,9 +123,7 @@ class AssociateQK:
             tup = (k, weight)
             qklist.append(tup)
 
-        # sort
-        sortlist = sorted(qklist, cmp=lambda x,y:cmp(y[1], x[1]))
-        return sortlist
+        return sorted(qklist, cmp=lambda x,y:cmp(y[1], x[1]))
 
 if __name__ == "__main__":
     sr = AssociateQK()

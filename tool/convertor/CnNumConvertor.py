@@ -55,18 +55,14 @@ def chinese2digits(uchars_chinese):
     for i in range(len(uchars_chinese) - 1, -1, -1):
         print(uchars_chinese[i])
         val = common_used_numerals_tmp.get(uchars_chinese[i])
-        if val >= 10 and i == 0:  #应对 十三 十四 十*之类
-            if val > r:
-                r = val
-                total = total + val
-            else:
-                r = r * val
-                #total =total + r * x
+        if val >= 10 and i == 0 and val > r:
+            r = val
+            total = total + val
+        elif val >= 10 and i == 0 or val >= 10 and val <= r:
+            r = r * val
+            #total =total + r * x
         elif val >= 10:
-            if val > r:
-                r = val
-            else:
-                r = r * val
+            r = val
         else:
             total = total + r * val
 
@@ -85,7 +81,7 @@ def chinese_to_arabic(cn):
     for cndig in reversed(cn):
         if cndig in CN_UNIT:
             unit = CN_UNIT.get(cndig)
-            if unit == 10000 or unit == 100000000:
+            if unit in [10000, 100000000]:
                 ldig.append(unit)
                 unit = 1
         else:
@@ -98,7 +94,7 @@ def chinese_to_arabic(cn):
         ldig.append(10)
     val, tmp = 0, 0
     for x in reversed(ldig):
-        if x == 10000 or x == 100000000:
+        if x in [10000, 100000000]:
             val += tmp * x
             tmp = 0
         else:

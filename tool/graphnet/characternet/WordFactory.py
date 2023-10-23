@@ -36,10 +36,9 @@ class WordFactory:
         self.wordposlist = []
         # 把停用词做成字典
         self.stopwords = {}
-        fstop = open('./../data/stopwords-single.txt', 'r')
-        for eachWord in fstop:
-            self.stopwords[eachWord.strip().decode('utf-8', 'ignore')] = eachWord.strip().decode('utf-8', 'ignore')
-        fstop.close()
+        with open('./../data/stopwords-single.txt', 'r') as fstop:
+            for eachWord in fstop:
+                self.stopwords[eachWord.strip().decode('utf-8', 'ignore')] = eachWord.strip().decode('utf-8', 'ignore')
 
     def generateWord(self):
         # 查找关系总数

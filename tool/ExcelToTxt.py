@@ -57,8 +57,8 @@ class ExcelReader:
         :return: ture if read file ok, false otherwise 
         """
         fileNames = os.path.splitext(targetfilepath)
-        self.trainfilepath = fileNames[0] + '-train.txt'
-        self.testfilepath = fileNames[0] + '-test.txt'
+        self.trainfilepath = f'{fileNames[0]}-train.txt'
+        self.testfilepath = f'{fileNames[0]}-test.txt'
         # 打开文件
         workbook = xlrd.open_workbook(sourcefilepath)
         # 获取所有sheet
@@ -71,12 +71,12 @@ class ExcelReader:
         kntxt = []
         while index < sheetlength:
             sheet = workbook.sheet_by_index(index)
-            index = index + 1
+            index += 1
 
             rowindex = 0
             while rowindex < sheet.nrows:
                 row = sheet.row_values(rowindex)
-                rowindex = rowindex + 1
+                rowindex += 1
                 if rowindex == 1:
                     continue
                 if len(row) < 18:
@@ -89,32 +89,28 @@ class ExcelReader:
                 content = row[7]
                 answer_content = ''
                 if str(answer).__contains__('A'):
-                    answer_content = answer_content + ',' + str(row[9])
+                    answer_content = f'{answer_content},{str(row[9])}'
                 if str(answer).__contains__('B'):
-                    answer_content = answer_content + ',' + str(row[10])
+                    answer_content = f'{answer_content},{str(row[10])}'
                 if str(answer).__contains__('C'):
-                    answer_content = answer_content + ',' + str(row[11])
+                    answer_content = f'{answer_content},{str(row[11])}'
                 if str(answer).__contains__('D'):
-                    answer_content = answer_content +  ',' + str(row[12])
+                    answer_content = f'{answer_content},{str(row[12])}'
                 if str(answer).__contains__('E'):
-                    answer_content = answer_content +  ',' + str(row[13])
+                    answer_content = f'{answer_content},{str(row[13])}'
 
 
                 #knowledge = '无'
-                content = content + ' 答案：' + answer_content[1:]
+                content = f'{content} 答案：{answer_content[1:]}'
                 #kntxt.append(knowledge)
                 traintxt.append(content)
-                testtxt.append(knowledge+':'+content)
+                testtxt.append(f'{knowledge}:{content}')
 
 
-        # 写结果文件
-        fout = open(self.trainfilepath, 'w')  # 以写得方式打开文件
-        fout.write('\n'.join(traintxt))  # 将分词好的结果写入到输出文件
-        fout.close()
-
-        fout = open(self.testfilepath, 'w')  # 以写得方式打开文件
-        fout.write('\n'.join(testtxt))  # 将分词好的结果写入到输出文件
-        fout.close()
+        with open(self.trainfilepath, 'w') as fout:
+            fout.write('\n'.join(traintxt))  # 将分词好的结果写入到输出文件
+        with open(self.testfilepath, 'w') as fout:
+            fout.write('\n'.join(testtxt))  # 将分词好的结果写入到输出文件
 
         #fout = open('./../data/guojiashuishou-knowledge.txt', 'w')  # 以写得方式打开文件
         #fout.write('\n'.join(kntxt))  # 将分词好的结果写入到输出文件
@@ -150,22 +146,23 @@ class ExcelReader:
         if len(self.result) == 0:
             return
 
-        cylist = []
-        cylist.append("CREATE CONSTRAINT ON (c:Knowledge) ASSERT c.code IS UNIQUE;")
-        cylist.append("CREATE CONSTRAINT ON (c:Question) ASSERT c.code IS UNIQUE;")
+        cylist = [
+            "CREATE CONSTRAINT ON (c:Knowledge) ASSERT c.code IS UNIQUE;",
+            "CREATE CONSTRAINT ON (c:Question) ASSERT c.code IS UNIQUE;",
+        ]
+        rns = "MERGE (k)-[:CHECK]->(q);"
         for item in self.result:
             k = str(item['knowledge'])
             md5code = self.getMd5(k)
             kns = "MERGE (k:Knowledge {{code:'{0}',name: '{1}'}})".format(md5code, k)
             qns = "MERGE (q:Question {{code: '{0}',type:'{1}', category:'{2}',diff:{3},coursename:'{4}',courseid:'{5}', databaseid:'{6}'}})".format(item['questionid'], item['questiontype'], item['questioncate'],item['questiondiff'],item['coursename'],item['courseid'],item['databaseid'])
-            rns = "MERGE (k)-[:CHECK]->(q);"
             com = kns + '\r\n' + qns + '\r\n' + rns + '\r\n'
             self.cypherlist.append(com)
 
     def preprocess(self, data):
         data = str(data)
         if data.__contains__("'"):
-            data = str(data).replace("'","")
+            data = data.replace("'", "")
 
         return  data
 

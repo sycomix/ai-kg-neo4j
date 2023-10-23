@@ -51,9 +51,7 @@ class TeacherQuestionProcessor:
             return k_list
 
         row_list = self.course_exam_dict.get(course_id)
-        for row in row_list:
-            k_list.append(row[2])
-
+        k_list.extend(row[2] for row in row_list)
         return k_list
 
     def getExamKnwoledgeByTeacher(self, exam_id):
@@ -64,8 +62,7 @@ class TeacherQuestionProcessor:
         """
         if not self.exam_knowledge_dict.__contains__(exam_id):
             return None
-        k_desc = self.exam_knowledge_dict.get(exam_id)
-        return k_desc
+        return self.exam_knowledge_dict.get(exam_id)
 
     def getExamKnwoledgeByTeacher_split(self, exam_id):
         """
@@ -78,8 +75,7 @@ class TeacherQuestionProcessor:
             return k_list
         k_desc = self.exam_knowledge_dict.get(exam_id)
         k_desc_list = k_desc.split(';')
-        for k in k_desc_list:
-            k_list.append(k)
+        k_list.extend(iter(k_desc_list))
         return k_list
 
     def get_course_exam_dict(self, root_path):
@@ -151,9 +147,7 @@ class TeacherQuestionProcessor:
 
         # 指定列的范围 = [u'课程编号', u'试题编号', u'标注知识点']
         self.excel_reader.column_scope_names = {u'课程编号':-1, u'试题编号':-1, u'标注知识点':-1}
-        excel_content_rows = self.excel_reader.readFile()
-
-        return excel_content_rows
+        return self.excel_reader.readFile()
 
     def get_filename_from_dir(self, dir_path):
         """
@@ -167,7 +161,7 @@ class TeacherQuestionProcessor:
 
         for sub_dir_name in os.listdir(dir_path):
             # sub_dir_name 子文件夹名称
-            sub_dir_path = '{}/{}'.format(dir_path, sub_dir_name)
+            sub_dir_path = f'{dir_path}/{sub_dir_name}'
             for item in os.listdir(sub_dir_path):
                 basename = os.path.basename(item)
                 # print(chardet.detect(basename))   # 找出文件名编码,文件名包含有中文
@@ -180,7 +174,7 @@ class TeacherQuestionProcessor:
                 except UnicodeDecodeError:
                     decode_str = basename.decode("utf-8")
 
-                file_path = u'{}/{}'.format(sub_dir_path, decode_str)
+                file_path = f'{sub_dir_path}/{decode_str}'
                 file_list.append(file_path)
 
         return file_list

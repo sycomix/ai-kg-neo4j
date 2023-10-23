@@ -40,18 +40,14 @@ class UnicodeConvertor:
 
 
 def stringToUnicode(s_str):
-    s_unicode = s_str.encode('unicode-escape')
-    #s_unicode1 = s_str.encode('unicode-escape').decode('string_escape')
-    return s_unicode
+    return s_str.encode('unicode-escape')
 
 def numToUnicode(f_id):
     if isinstance(f_id, unicode):
         return f_id
 
     id = int(f_id)
-    u_id = str(id).decode('utf-8')
-
-    return u_id
+    return str(id).decode('utf-8')
 
 
 
@@ -61,25 +57,16 @@ def unicodeToString(s_unicode):
 def is_chinese(uchar):
 
     """判断一个unicode是否是汉字"""
-    res = False
     s_unicode = stringToUnicode(uchar)
-    if s_unicode >= u'\\u4e00' and s_unicode <= u'\\u9fa5':
-        res = True
-    return res
+    return s_unicode >= u'\\u4e00' and s_unicode <= u'\\u9fa5'
 
 def is_empty(uchar):
-    flag = False
-    if uchar == u' ' or uchar == u'　':
-        flag = True
-
-    return flag
+    return uchar in [u' ', u'　']
 
 def is_number(uchar):
     """判断一个unicode是否是数字"""
 
-    res = False
-    #    res = True
-    return res
+    return False
 
 
 
@@ -88,25 +75,15 @@ def is_alphabet(uchar):
 
     uchar = stringToUnicode(uchar)
 
-    if (uchar >= u'\\u0041' and uchar <= u'\\u005a') or (uchar >= u'\\u0061' and uchar <= u'\\u007a'):
-
-        return True
-
-    else:
-
-        return False
+    return (uchar >= u'\\u0041' and uchar <= u'\\u005a') or (
+        uchar >= u'\\u0061' and uchar <= u'\\u007a'
+    )
 
 
 def is_other(uchar):
     """判断是否非汉字，数字和英文字符"""
 
-    if not (is_chinese(uchar) or uchar.isalnum()):
-
-        return True
-
-    else:
-
-        return False
+    return not (is_chinese(uchar) or uchar.isalnum())
 
 
 def B2Q(uchar):
@@ -142,11 +119,11 @@ def Q2B(uchar):
 
         inside_code -= 0xfee0
 
-    if inside_code < 0x0020 or inside_code > 0x7e:  # 转完之后不是半角字符返回原来的字符
-
-        return uchar
-
-    return unichr(inside_code)
+    return (
+        uchar
+        if inside_code < 0x0020 or inside_code > 0x7E
+        else unichr(inside_code)
+    )
 
 
 def stringQ2B(ustring):
@@ -173,14 +150,11 @@ def string2List(ustring):
         if is_other(uchar):
 
             if len(utmp) == 0:
-
                 continue
 
-            else:
+            retList.append("".join(utmp))
 
-                retList.append("".join(utmp))
-
-                utmp = []
+            utmp = []
 
         else:
 

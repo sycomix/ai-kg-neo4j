@@ -73,7 +73,6 @@ class WordReader:
                 pass
 
             level,nline = self.senpreprocessor.judgeLevel(one_row)
-            sens = []
             pbasestylename = '' if p.style.base_style is None else p.style.base_style.name
             pstylename = '' if p.style is None else p.style.name
             if (p._element.pPr is None or p._element.pPr.numPr is None):
@@ -83,9 +82,9 @@ class WordReader:
             pstyleid = p.style.style_id
             custom_style = (pstyleid == pstylename and level > 0)
             if level > 0 and (pstylename.__contains__(u'Title') or pstylename.__contains__(u'Head') or pstylename.__contains__(u'标题') \
-                    or pbasestylename.__contains__(u'Title') or pbasestylename.__contains__(u'Head')or pbasestylename.__contains__(u'标题')):
+                        or pbasestylename.__contains__(u'Title') or pbasestylename.__contains__(u'Head')or pbasestylename.__contains__(u'标题')):
                 local_result.append(one_row)
-            elif level == 1 or level == 2:
+            elif level in [1, 2]:
                 # level =1 说明是第一章之类的，level=2说明是第一节之类的
                 # 对于目录之类的要处理页码
                 ntext = self.senpreprocessor.removePageNum(one_row)
@@ -110,6 +109,7 @@ class WordReader:
                 local_result.append(auto_num + ntext)
 
             else:
+                sens = []
                 for r in p.runs:
                     if len(r.text.strip()) == 0:
                         continue
@@ -118,7 +118,7 @@ class WordReader:
                         sens.append(r.text)
                         break
 
-                if len(sens) > 0 and level > 0:
+                if sens and level > 0:
                     # 如果有句中有冒号，则只取冒号前的部分
                     line = self.scanSentence(one_row)
                     local_result.append(line)
@@ -148,8 +148,7 @@ class WordReader:
         self.result = []
         for sen in local_result:
 
-            sen_list = self.senpreprocessor.process(sen)
-            if sen_list:
+            if sen_list := self.senpreprocessor.process(sen):
                 self.result = self.result + sen_list
                 #print sen_list[0]
 
@@ -160,7 +159,7 @@ class WordReader:
         line_list = []
         for ch in sen:
             # 如果碰到冒号，则结束
-            if ch == u':' or ch == u'：'or ch == u'。':
+            if ch in [u':', u'：', u'。']:
                 break
             else:
                 line_list.append(ch)
@@ -170,9 +169,8 @@ class WordReader:
     def outputfile(self, filepath, content):
         if filepath is None:
             return
-        fout = open(filepath, 'w')  # 以写得方式打开文件
-        fout.write('\n'.join(content))  # 将分词好的结果写入到输出文件
-        fout.close()
+        with open(filepath, 'w') as fout:
+            fout.write('\n'.join(content))  # 将分词好的结果写入到输出文件
 
     def readTable(self):
         if self.input_filepath is None:
@@ -200,9 +198,9 @@ class WordReader:
         data_lines = 3
         for i in range(data_lines):
             cells = table.add_row().cells
-            cells[0].text = 'Name%s' % i
-            cells[1].text = 'Id%s' % i
-            cells[2].text = 'Desc%s' % i
+            cells[0].text = f'Name{i}'
+            cells[1].text = f'Id{i}'
+            cells[2].text = f'Desc{i}'
 
         rows = 2
         cols = 4

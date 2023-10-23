@@ -178,7 +178,7 @@ class AssociateQKByKeyword:
             k_parent = self.knowledgeByCode[k_code_n]
             if not resdict.__contains__(k_code_n):
                 resdict[k_parent[2]] = ''
-                k_parent_tup = (k_parent[0]+'--'+k[0], k[1], k[2], k[3])
+                k_parent_tup = f'{k_parent[0]}--{k[0]}', k[1], k[2], k[3]
                 #reslist.append(k_parent_tup)
                 reslist.append(k_parent_tup)
 
@@ -190,7 +190,7 @@ class AssociateQKByKeyword:
         reslist = []
         wordlist = []
         for item in inputlist:
-            ns = '{} {}(可信度：{})'.format(item[1], item[0],item[3])
+            ns = f'{item[1]} {item[0]}(可信度：{item[3]})'
             reslist.append(ns)
             wordlist.append(item[0])
 
@@ -206,9 +206,7 @@ class AssociateQKByKeyword:
                 count = record['count']
                 question_ext[word] = count
 
-                if maxcount < count:
-                    maxcount = count
-
+                maxcount = max(maxcount, count)
                 break
 
         qklist = []
@@ -226,14 +224,7 @@ class AssociateQKByKeyword:
             tup = (k, k_code, weight,50.0)
             qklist.append(tup)
 
-        # sort
-        sortlist = sorted(qklist, cmp=lambda x, y: cmp(y[2], x[2]))
-
-        #reslist = []
-        #for item in sortlist:
-        #    reslist.append(item)
-
-        return sortlist
+        return sorted(qklist, cmp=lambda x, y: cmp(y[2], x[2]))
 
     def getAssociateQK_Keyword(self, candidate_qklist_org, candidate_qklist_ext):
         associatelist = []
@@ -254,19 +245,13 @@ class AssociateQKByKeyword:
 
         # 如果没有交叉，则取最长的
         reslist = None
-        if len(associatelist) > 0:
-            reslist = associatelist
-        else:
-            reslist = maxassociatelist
-            # print
-        return  reslist
+        return associatelist if associatelist else maxassociatelist
     def getAssociateQK_PartWordContains(self, question, q):
         qklist = []
         for k in self.knowledge.keys():
             k_ojb = self.knowledge[k]
 
             klist = k_ojb[0]
-            k_code = k_ojb[2]
             length = len(klist)
             index = 0
             pointcount = 0.0
@@ -283,18 +268,16 @@ class AssociateQKByKeyword:
                     pointcount = pointcount + 1
             if pointcount > 0:
                 pointcount = pointcount + 3.0 / len(k)
+                k_code = k_ojb[2]
                 tup = (k, k_code, pointcount, 65.0)
                 qklist.append(tup)
 
-        # sort
-        sortlist = sorted(qklist, cmp=lambda x,y:cmp(y[2], x[2]))
-        return sortlist
+        return sorted(qklist, cmp=lambda x,y:cmp(y[2], x[2]))
 
     def getAssociateQK_PartCharacterContains(self, question):
         qklist = []
         for k in self.knowledge.keys():
             k_ojb = self.knowledge[k]
-            k_code = k_ojb[2]
             k1 = k.decode('utf-8')
             length = len(k1)
             index = 0
@@ -308,12 +291,11 @@ class AssociateQKByKeyword:
 
             if pointcount > 0:
                 pointcount = pointcount + 1.0 / len(k1)
+                k_code = k_ojb[2]
                 tup = (k, k_code, pointcount, 60.0)
                 qklist.append(tup)
 
-        # sort
-        sortlist = sorted(qklist, cmp=lambda x,y:cmp(y[1], x[1]))
-        return sortlist
+        return sorted(qklist, cmp=lambda x,y:cmp(y[1], x[1]))
 
     def getAssociateQK_NoContains(self, question):
         qklist = {}
@@ -338,8 +320,8 @@ class AssociateQKByKeyword:
         for k in self.knowledge.keys():
             k_obj = self.knowledge[k]
             k_code = k_obj[2]
-            k_q_c = '“' + k +'”'
-            k_q_e = '"' + k +'"'
+            k_q_c = f'“{k}”'
+            k_q_e = f'"{k}"'
             k_length = len(k)
             if q.__contains__(k_q_c):
                 index = q.find(k)
@@ -374,9 +356,7 @@ class AssociateQKByKeyword:
             elif max_score > item[2]:
                 break
 
-        # 去重
-        reslist = self.resultFilter(reslist)
-        return reslist
+        return self.resultFilter(reslist)
 
     def resultFilter(self, reslist_orig):
         reslist = []
@@ -397,9 +377,8 @@ class AssociateQKByKeyword:
         return reslist
 
     def outputResult(self):
-        fout = open(self.outputfilepath, 'w')  # 以写得方式打开文件
-        fout.writelines(self.outputcontentlist)  # 将分词好的结果写入到输出文件
-        fout.close()
+        with open(self.outputfilepath, 'w') as fout:
+            fout.writelines(self.outputcontentlist)  # 将分词好的结果写入到输出文件
 
     def executeAssociate(self):
         self.readRegularKnowledgeList()
